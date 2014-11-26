@@ -1211,6 +1211,7 @@ void DDA::Step()
 	move->liveCoordinates[DRIVES] = myLookAheadEntry->FeedRate();
     myLookAheadEntry->Release();
     platform->SetInterrupt(STANDBY_INTERRUPT_RATE);
+    platform->ExtrudeOff();
   }
 }
 
