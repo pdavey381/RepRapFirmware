@@ -2324,6 +2324,13 @@ bool GCodes::HandleMcode(int code, GCodeBuffer *gb)
 			snprintf(reply, STRING_LENGTH, "Time allowed to get to temperature: %.1f seconds.", platform->TimeToHot());
 		break;
 
+	case 571:
+		if(gb->Seen('S'))
+			platform->SetExtrusionAncilliaryPWM(gb->GetFValue());
+		else
+			snprintf(reply, STRING_LENGTH, "Extrusion ancilliary PWM: %.3f.", platform->GetExtrusionAncilliaryPWM());
+		break;
+
 	case 906: // Set/Report Motor currents
 	{
 		seen = false;

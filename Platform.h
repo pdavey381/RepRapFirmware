@@ -523,6 +523,12 @@ class Platform
   void SetZProbe(int iZ);
   void SetZProbeType(int iZ);
   int GetZProbeType() const;
+
+  void SetExtrusionAncilliaryPWM(float v);
+  float GetExtrusionAncilliaryPWM();
+  void ExtrudeOn();
+  void ExtrudeOff();
+
   //Mixing support
  // void SetMixingDrives(int);
  // int GetMixingDrives();
@@ -608,6 +614,8 @@ class Platform
   float zProbeStopHeight;
   bool zProbeEnable;
   //int8_t numMixingDrives;
+
+  float extrusionAncilliaryPWM;
 
 // AXES
 
@@ -1004,6 +1012,28 @@ inline void Platform::SetZProbeType(int pt)
 inline int Platform::GetZProbeType() const
 {
 	return zProbeType;
+}
+
+inline void Platform::SetExtrusionAncilliaryPWM(float v)
+{
+	extrusionAncilliaryPWM = v;
+}
+
+inline float Platform::GetExtrusionAncilliaryPWM()
+{
+	return extrusionAncilliaryPWM;
+}
+
+// For the Duet we use the fan output for this
+
+inline void Platform::ExtrudeOn()
+{
+	CoolingFan(extrusionAncilliaryPWM);
+}
+
+inline void Platform::ExtrudeOff()
+{
+	CoolingFan(0.0);
 }
 
 //********************************************************************************************************

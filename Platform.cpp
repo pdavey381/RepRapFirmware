@@ -196,6 +196,8 @@ void Platform::Init()
 
   SetSlowestDrive();
 
+  extrusionAncilliaryPWM = 0.0;
+
   // HEATERS - Bed is assumed to be index 0
 
   for(heater = 0; heater < HEATERS; heater++)

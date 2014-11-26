@@ -1102,8 +1102,21 @@ MovementProfile DDA::Init(LookAhead* lookAhead, float& u, float& v, bool debug)
 
 void DDA::Start()
 {
+  bool extrude = false;
   for(int8_t drive = 0; drive < DRIVES; drive++)
+  {
     platform->SetDirection(drive, directions[drive]);
+    if(drive > AXES)
+    {
+    	if(delta[drive])
+    		extrude = true;
+    }
+  }
+
+  if(extrude)
+	  platform->ExtrudeOn();
+  else
+	  platform->ExtrudeOff();
 
   platform->SetInterrupt(timeStep); // seconds
   active = true;  
