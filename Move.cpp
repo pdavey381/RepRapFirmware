@@ -991,6 +991,7 @@ MovementProfile DDA::Init(LookAhead* lookAhead, float& u, float& v, bool debug)
 {
   int8_t drive;
   active = false;
+  extrusionMove = false;
   myLookAheadEntry = lookAhead;
   MovementProfile result = moving;
   totalSteps = -1;
@@ -1010,7 +1011,11 @@ MovementProfile DDA::Init(LookAhead* lookAhead, float& u, float& v, bool debug)
     if(drive < AXES) // X, Y, & Z
       delta[drive] = targetPosition[drive] - positionNow[drive];  // XYZ Absolute
     else
+    {
       delta[drive] = targetPosition[drive];  // Es Relative
+      if(delta[drive])
+    	  extrusionMove = true;
+    }
 
     d = myLookAheadEntry->MachineToEndPoint(drive, delta[drive]);
     distance += d*d;
@@ -1102,18 +1107,12 @@ MovementProfile DDA::Init(LookAhead* lookAhead, float& u, float& v, bool debug)
 
 void DDA::Start()
 {
-  bool extrude = false;
-  for(int8_t drive = 0; drive < DRIVES; drive++)
-  {
-    platform->SetDirection(drive, directions[drive]);
-    if(drive > AXES)
-    {
-    	if(delta[drive])
-    		extrude = true;
-    }
-  }
 
-  if(extrude)
+  for(int8_t drive = 0; drive < DRIVES; drive++)
+    platform->SetDirection(drive, directions[drive]);
+
+
+  if(extrusionMove)
 	  platform->ExtrudeOn();
   else
 	  platform->ExtrudeOff();

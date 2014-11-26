@@ -148,6 +148,7 @@ private:
     float distance;							// How long is the move in real distance
     float acceleration;						// The acceleration to use
     float instantDv;						// The lowest possible velocity
+    bool extrusionMove;						// Are the extruders active for this move?
     volatile bool active;					// Is the DDA running?
 };
 
