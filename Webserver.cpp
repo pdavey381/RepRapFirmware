@@ -457,6 +457,7 @@ void Webserver::GetJsonResponse(const char* request)
     strncat(jsonResponse, scratchString, STRING_LENGTH);
     strncat(jsonResponse, "\",", STRING_LENGTH);
 
+    unsigned char activeHeaterBits = 0;
     for(int8_t heater = 0; heater < HEATERS; heater++)
     {
       strncat(jsonResponse, "\"", STRING_LENGTH);
@@ -466,6 +467,8 @@ void Webserver::GetJsonResponse(const char* request)
     	  strncat(jsonResponse, "\",", STRING_LENGTH);
       else
     	  strncat(jsonResponse, "\"", STRING_LENGTH);
+      if(!reprap.GetHeat()->SwitchedOff(heater))
+    	  activeHeaterBits |= 1 << heater;
     }
 
     strncat(jsonResponse, "]", STRING_LENGTH);
@@ -507,6 +510,11 @@ void Webserver::GetJsonResponse(const char* request)
     // Send the response sequence number
     strncat(jsonResponse, ",\"seq\":", STRING_LENGTH);
 	snprintf(scratchString, STRING_LENGTH, "%u", (unsigned int)seq);
+	strncat(jsonResponse, scratchString, STRING_LENGTH);
+
+	// Send the list of active heaters
+	strncat(jsonResponse, ",\"act\":", STRING_LENGTH);
+	snprintf(scratchString, STRING_LENGTH, "%u", (unsigned int)activeHeaterBits);
 	strncat(jsonResponse, scratchString, STRING_LENGTH);
 
     // Send the response to the last command. Do this last because it is long and may need to be truncated.

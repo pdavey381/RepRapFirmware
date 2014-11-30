@@ -24,8 +24,8 @@ Licence: GPL
 #define CONFIGURATION_H
 
 #define NAME "RepRapFirmware"
-#define VERSION "0.97"
-#define DATE "2014-11-26"
+#define VERSION "0.98"
+#define DATE "2014-11-30"
 #define LAST_AUTHOR "reprappro"
 
 // Other firmware that we might switch to be compatible with.
@@ -45,8 +45,6 @@ enum Compatibility
 #define ABS_ZERO (-273.15)  // Celsius
 
 #define INCH_TO_MM (25.4)
-
-#define A_SMALL_NUMBER (0.0001)
 
 #define HEAT_SAMPLE_TIME (0.5) // Seconds
 
