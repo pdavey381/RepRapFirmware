@@ -12,11 +12,13 @@ var messageSeqId = 0;
 
 //Temp/Layer Chart settings
 var maxDataPoints = 200;
-var chartData = [[], []];
+var chartData = [[], [], [], []];
 var maxLayerBars = 100;
 var layerData = [];
 var bedColour = "#454BFF"; //blue
-var headColour = "#FC2D2D"; //red
+var headColour1 = "#FC2D2D"; //red
+var headColour2 = "#2DFC2D"; //green
+var headColour3 = "#FCAC2D"; //orange
 
 var gFile = [];
 var macroGs = ['setbed.g'];
@@ -57,15 +59,19 @@ $(document).ready(function() {
     for (var i = 0; i < maxDataPoints; i++) {
         chartData[0].push([i, 20]);
         chartData[1].push([i, 10]);
+        chartData[2].push([i, 10]);
+        chartData[3].push([i, 10]);
     }
 
     //chart line colours
     $('#bedTxt').css("color", bedColour);
-    $('#headTxt').css("color", headColour);
+    $('#headTxt1').css("color", headColour1);
+    $('#headTxt2').css("color", headColour2);
+    $('#headTxt3').css("color", headColour3);
 
     chart = $.plot("#tempchart", chartData, {
         series: {shadowSize: 0},
-        colors: [bedColour, headColour],
+        colors: [bedColour, headColour1, headColour2, headColour3],
         yaxis: {min: -20, max: 250},
         xaxis: {show: false},
         grid: {
@@ -115,12 +121,26 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
     $('input#bedTempInput').val($(this).text());
     $.askElle('gcode', "M140 S" + $(this).text());
 });
-$('div#headTemperature button#setHeadTemp').on('click', function() {
-        $.askElle('gcode', "G10 P1 S" + $('input#headTempInput').val() + "\nT1");
+$('div#headTemperature1 button#setHeadTemp1').on('click', function() {
+        $.askElle('gcode', "G10 P1 S" + $('input#headTempInput1').val() + "\nT1");
 });
-$('div#headTemperature').on('click', 'a#headTempLink', function() {
-    $('input#headTempInput').val($(this).text());
+$('div#headTemperature2 button#setHeadTemp2').on('click', function() {
+        $.askElle('gcode', "G10 P2 S" + $('input#headTempInput2').val() + "\nT2");
+});
+$('div#headTemperature3 button#setHeadTemp3').on('click', function() {
+        $.askElle('gcode', "G10 P3 S" + $('input#headTempInput3').val() + "\nT3");
+});
+$('div#headTemperature1').on('click', 'a#headTempLink1', function() {
+    $('input#headTempInput1').val($(this).text());
     $.askElle('gcode', "G10 P1 S" + $(this).text() + "\nT1");
+});
+$('div#headTemperature2').on('click', 'a#headTempLink2', function() {
+    $('input#headTempInput2').val($(this).text());
+    $.askElle('gcode', "G10 P2 S" + $(this).text() + "\nT2");
+});
+$('div#headTemperature3').on('click', 'a#headTempLink3', function() {
+    $('input#headTempInput3').val($(this).text());
+    $.askElle('gcode', "G10 P3 S" + $(this).text() + "\nT3");
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -128,10 +148,22 @@ $('input#bedTempInput').keydown(function(event) {
         $.askElle('gcode', "M140 S" + $(this).val());
     }
 });
-$('input#headTempInput').keydown(function(event) {
+$('input#headTempInput1').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
         $.askElle('gcode', "G10 P1 S" + $(this).val() + "\nT1");
+    }
+});
+$('input#headTempInput2').keydown(function(event) {
+    if (event.which === 13) {
+        event.preventDefault();
+        $.askElle('gcode', "G10 P2 S" + $(this).val() + "\nT2");
+    }
+});
+$('input#headTempInput3').keydown(function(event) {
+    if (event.which === 13) {
+        event.preventDefault();
+        $.askElle('gcode', "G10 P3 S" + $(this).val() + "\nT3");
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -145,15 +177,39 @@ $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
         modalMessage("Error Adding Bed Temp!", "You must enter a Temperature to add it to the dropdown list", close);
     }
 });
-$('div#headTemperature ul').on('click', 'a#addHeadTemp', function() {
-    var tempVal = $('input#headTempInput').val();
+$('div#headTemperature1 ul').on('click', 'a#addHeadTemp1', function() {
+    var tempVal = $('input#headTempInput1').val();
     if (tempVal != "") {
-        var temps = storage.get('temps', 'head');
+        var temps = storage.get('temps', 'head1');
         temps.unshift(parseInt(tempVal));
-        storage.set('temps.head', temps);
+        storage.set('temps.head1', temps);
         loadSettings();
     }else{
-        modalMessage("Error Adding Head Temp!", "You must enter a Temperature to add it to the dropdown list", close);
+        modalMessage("Error Adding Head Temp1!", "You must enter a Temperature to add it to the dropdown list", close);
+    }
+});
+
+$('div#headTemperature2 ul').on('click', 'a#addHeadTemp2', function() {
+    var tempVal = $('input#headTempInput2').val();
+    if (tempVal != "") {
+        var temps = storage.get('temps', 'head2');
+        temps.unshift(parseInt(tempVal));
+        storage.set('temps.head2', temps);
+        loadSettings();
+    }else{
+        modalMessage("Error Adding Head Temp2!", "You must enter a Temperature to add it to the dropdown list", close);
+    }
+});
+
+$('div#headTemperature3 ul').on('click', 'a#addHeadTemp3', function() {
+    var tempVal = $('input#headTempInput3').val();
+    if (tempVal != "") {
+        var temps = storage.get('temps', 'head3');
+        temps.unshift(parseInt(tempVal));
+        storage.set('temps.head3', temps);
+        loadSettings();
+    }else{
+        modalMessage("Error Adding Head Temp3!", "You must enter a Temperature to add it to the dropdown list", close);
     }
 });
 
@@ -232,7 +288,9 @@ $('div#panicBtn button').on('click', function() {
             btnVal = "M1";
             //switch off heaters
             $.askElle('gcode', "M140 S0"); //bed off
-            $.askElle('gcode', "G10 P1 S0\nT1"); //head 0 off
+            $.askElle('gcode', "G10 P1 S-273\nT1"); //head 0 off
+            $.askElle('gcode', "G10 P2 S-273\nT2"); //head 1 off
+            $.askElle('gcode', "G10 P3 S-273\nT3"); //head 2 off
             resetLayerData();
         case "M24":
             //resume
@@ -320,9 +378,9 @@ function getCookies() {
     if (!storage.get('settings')) {
         storage.set('settings', { pollDelay : 1000, layerHeight : 0.24, halfz : 0, noOK : 0 });
     }
-    if (!storage.get('temps')) {
-        storage.set('temps', {'bed' : [120,65,0], 'head' : [240,185,0]});
-    }
+    //if (!storage.get('temps')) {
+        storage.set('temps', {'bed' : [120,65,0], 'head1' : [240,185,0], 'head2' : [240,185,0], 'head3' : [240,185,0]});
+    //}
 }
 
 function loadSettings() {
@@ -332,12 +390,20 @@ function loadSettings() {
     storage.get('settings', 'noOK')==1?$('div#messages input#noOK').prop('checked', true):$('div#messages input#noOK').prop('checked', false);
     
     $('div#bedTemperature ul').html('<li class="divider"></li><li><a href="#" id="addBedTemp">Add Temp</a></li>');
-    $('div#headTemperature ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp">Add Temp</a></li>');
+    $('div#headTemperature1 ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp1">Add Temp</a></li>');
+    $('div#headTemperature2 ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp2">Add Temp</a></li>');
+    $('div#headTemperature3 ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp3">Add Temp</a></li>');
     storage.get('temps', 'bed').forEach(function(item){
         $('div#bedTemperature ul').prepend('<li><a href="#" id="bedTempLink">'+item+'</a></li>');
     });
-    storage.get('temps', 'head').forEach(function(item){
-        $('div#headTemperature ul').prepend('<li><a href="#" id="headTempLink">'+item+'</a></li>');
+    storage.get('temps', 'head1').forEach(function(item){
+        $('div#headTemperature1 ul').prepend('<li><a href="#" id="headTempLink1">'+item+'</a></li>');
+    });
+	 storage.get('temps', 'head2').forEach(function(item){
+        $('div#headTemperature2 ul').prepend('<li><a href="#" id="headTempLink2">'+item+'</a></li>');
+    });
+	 storage.get('temps', 'head3').forEach(function(item){
+        $('div#headTemperature3 ul').prepend('<li><a href="#" id="headTempLink3">'+item+'</a></li>');
     });
 }
 
@@ -727,7 +793,9 @@ function updatePage() {
         $('span#probe').text(status.probe);
 */
         $('span#bedTemp').text(status.poll[5]);
-        $('span#headTemp').text(status.poll[6]);
+        $('span#headTemp1').text(status.poll[6]);
+        $('span#headTemp2').text(status.poll[7]);
+        $('span#headTemp3').text(status.poll[8]);
         $('span#Xpos').text(status.poll[1]);
         $('span#Ypos').text(status.poll[2]);
         $('span#Zpos').text(status.poll[3]);
@@ -737,6 +805,8 @@ function updatePage() {
         //Temp chart stuff
         chartData[0].push(parseFloat(status.poll[5]));
         chartData[1].push(parseFloat(status.poll[6]));
+        chartData[2].push(parseFloat(status.poll[7]));
+        chartData[3].push(parseFloat(status.poll[8]));
         chart.setData(parseChartData());
         chart.draw();
     }
@@ -878,10 +948,16 @@ function parseChartData() {
         chartData[0].shift();
     if (chartData[1].length > maxDataPoints)
         chartData[1].shift();
-    var res = [[], []];
+    if (chartData[2].length > maxDataPoints)
+        chartData[2].shift();
+    if (chartData[3].length > maxDataPoints)
+        chartData[3].shift();
+    var res = [[], [], [], []];
     for (var i = 0; i < chartData[0].length; ++i) {
         res[0].push([i, chartData[0][i]]);
         res[1].push([i, chartData[1][i]]);
+        res[2].push([i, chartData[2][i]]);
+        res[3].push([i, chartData[3][i]]);
     }
     return res;
 }

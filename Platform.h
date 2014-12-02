@@ -83,8 +83,8 @@ Licence: GPL
 #define BACKWARDS (!FORWARDS) // ...in each direction
 #define DIRECTIONS {FORWARDS, FORWARDS, FORWARDS, FORWARDS, FORWARDS, FORWARDS, FORWARDS, FORWARDS} // What each axis needs to make it go forwards - defaults
 #define ENABLE_PINS {29, 27, X1, X0, 37, X8, 50, 47}
-#define ENABLE false // What to send to enable...
-#define DISABLE true // ...and disable a drive
+#define ENABLE_DRIVE false // What to send to enable...
+#define DISABLE_DRIVE true // ...and disable a drive
 #define DISABLE_DRIVES {false, false, true, false, false, false, false, false} // Set true to disable a drive when it becomes idle
 #define LOW_STOP_PINS {11, -1, 60, 31, 24, 46, 45, 44} //E Stops not currently used
 #define HIGH_STOP_PINS {-1, 28, -1, -1, -1, -1, -1, -1}
@@ -854,9 +854,9 @@ inline void Platform::Disable(byte drive)
 	if(enablePins[drive] < 0)
 		  return;
 	if(drive == Z_AXIS || drive==E0_DRIVE || drive==E2_DRIVE) //ENABLE_PINS {29, 27, X1, X0, 37, X8, 50, 47}
-		digitalWriteNonDue(enablePins[drive], DISABLE);
+		digitalWriteNonDue(enablePins[drive], DISABLE_DRIVE);
 	else
-		digitalWrite(enablePins[drive], DISABLE);
+		digitalWrite(enablePins[drive], DISABLE_DRIVE);
 	driveEnabled[drive] = false;
 }
 
@@ -867,9 +867,9 @@ inline void Platform::Step(byte drive)
 	if(!driveEnabled[drive] && enablePins[drive] >= 0)
 	{
 		if(drive == Z_AXIS || drive==E0_DRIVE || drive==E2_DRIVE) //ENABLE_PINS {29, 27, X1, X0, 37, X8, 50, 47}
-			digitalWriteNonDue(enablePins[drive], ENABLE);
+			digitalWriteNonDue(enablePins[drive], ENABLE_DRIVE);
 		else
-			digitalWrite(enablePins[drive], ENABLE);
+			digitalWrite(enablePins[drive], ENABLE_DRIVE);
 		driveEnabled[drive] = true;
 	}
 	if(drive == E0_DRIVE || drive == E3_DRIVE) //STEP_PINS {14, 25, 5, X2, 41, 39, X4, 49}

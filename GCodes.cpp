@@ -1508,9 +1508,11 @@ bool GCodes::HandleMcode(int code, GCodeBuffer *gb)
 			fileBeingPrinted = NULL;
 		}
 		if(!DisableDrives())
-			return false;
-		if(!StandbyHeaters())
-			return false; // Should never happen
+			result = false;
+		else if(!StandbyHeaters()) // Should never happen
+			result = false;
+		else
+			result = true;
 		break;
 
 	case 18: // Motors off
@@ -1718,8 +1720,9 @@ bool GCodes::HandleMcode(int code, GCodeBuffer *gb)
 		// Fall through to the general check...
 	case 116: // Wait for everything, especially set temperatures
 		if(!AllMovesAreFinishedAndMoveBufferIsLoaded())
-			return false;
-		result = reprap.GetHeat()->AllHeatersAtSetTemperatures();
+			result = false;
+		else
+			result = reprap.GetHeat()->AllHeatersAtSetTemperatures();
 		break;
 
 	case 119:
