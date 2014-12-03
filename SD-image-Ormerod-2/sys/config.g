@@ -28,7 +28,5 @@ M203 X15000 Y15000 Z300 E3600       ; Maximum speeds (mm/min)
 M566 X1200 Y1200 Z30 E1200          ; Minimum speeds mm/minute 
 M563 P1 D0 H1                       ; Define tool 1
 G10 P1 S-273 R-273                  ; Set tool 1 operating and standby temperatures
-M563 P101 H1                        ; Define tool 101 to allow web interface to control heater 1
-M563 P102 H2                        ; Define tool 102 to allow web interface to control heater 2
-M563 P103 H3                        ; Define tool 103 to allow web interface to control heater 3
+M563 P127 D0:1:2:3:4 H1:2:3         ; Define tool 127 to allow the web interface to control all heaters and drives
 

@@ -90,6 +90,25 @@ Requires reset button on duet to restart">STOP!</button>
                                     </td>
                                 </tr>
 
+
+<tr>
+                                    <td style="padding-top: 15px"><button style="background-color:rgb(69,75,255)" type="button" id="bedTxt" class="btn btn-danger disabled" value="0">Bed (H 0)</button><strong></strong></td>
+                                    <td style="padding-top: 15px; width:60px"><span id="bedTemp">0</span>&deg;C</td>
+                                    <td>
+                                        <div class="input-group" id="bedTemperature">
+                                            <div class="input-group-btn">
+                                                <button type="button" id='setBedTemp' class="btn btn-default disabled">Set</button>
+                                                <button type="button" class="btn btn-default dropdown-toggle disabled" data-toggle="dropdown"><span class="caret"></span></button>
+                                                <ul class="dropdown-menu">
+                                                    <li class="divider"></li>
+                                                    <li><a href="#" id='addBedTemp'>Add Temp</a></li>                                                    
+                                                </ul>
+                                            </div><!-- /btn-group -->
+                                            <input style="width:60px" type="text" id='bedTempInput' class="form-control">
+                                        </div><!-- /input-group -->                                        
+                                    </td>
+                                </tr>    
+
                                 <tr>
                                     <td style="padding-top: 15px"><strong><button style="background-color:rgb(252,45,45)" type="button" id="headTxt1" class="btn btn-danger disabled" value="0">Heater 1</button></strong></td>
                                     <td style="padding-top: 15px; width:60px"><span id="headTemp1">0</span>&deg;C</td>
@@ -142,25 +161,7 @@ Requires reset button on duet to restart">STOP!</button>
                                             <input style="width:60px" type="text" id='headTempInput3' class="form-control">
                                         </div><!-- /input-group -->  
                                     </td>
-                                </tr>
-                                
-                                <tr>
-                                    <td style="padding-top: 15px"><button style="background-color:rgb(69,75,255)" type="button" id="bedTxt" class="btn btn-danger disabled" value="0">Bed</button><strong></strong></td>
-                                    <td style="padding-top: 15px; width:60px"><span id="bedTemp">0</span>&deg;C</td>
-                                    <td>
-                                        <div class="input-group" id="bedTemperature">
-                                            <div class="input-group-btn">
-                                                <button type="button" id='setBedTemp' class="btn btn-default disabled">Set</button>
-                                                <button type="button" class="btn btn-default dropdown-toggle disabled" data-toggle="dropdown"><span class="caret"></span></button>
-                                                <ul class="dropdown-menu">
-                                                    <li class="divider"></li>
-                                                    <li><a href="#" id='addBedTemp'>Add Temp</a></li>                                                    
-                                                </ul>
-                                            </div><!-- /btn-group -->
-                                            <input style="width:60px" type="text" id='bedTempInput' class="form-control">
-                                        </div><!-- /input-group -->                                        
-                                    </td>
-                                </tr>                                
+                                </tr>                            
                                 
                             </tbody>
                         </table>   
@@ -290,16 +291,71 @@ Requires reset button on duet to restart">STOP!</button>
 
                                         <tr>
                                             <td colspan="2">
-                                                <span>Feed</span>
-                                                <div class="btn-group" id="feed">
-                                                    <button type="button" class="btn btn-default disabled" id="feed" value="1">1mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed" value="5">5mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed" value="10">10mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed" value="50">50mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed" value="100">100mm</button>
+                                                <span>Drive 0</span>
+                                                <div class="btn-group" id="feed0">
+                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="1">1mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="5">5mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="10">10mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="50">50mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="100">100mm</button>
                                                 </div>
                                             </td>
                                         </tr>
+
+                                      <tr>
+                                            <td colspan="2">
+                                         			<span>Drive 1</span>
+                                                <div class="btn-group" id="feed1">
+                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="1">1mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="5">5mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="10">10mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="50">50mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="100">100mm</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                      <tr>
+                                            <td colspan="2">
+                                               <span>Drive 2</span>
+                                                <div class="btn-group" id="feed2">
+                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="1">1mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="5">5mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="10">10mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="50">50mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="100">100mm</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                      <tr>
+                                            <td colspan="2">
+                                               <span>Drive 3</span>
+                                                <div class="btn-group" id="feed3">
+                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="1">1mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="5">5mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="10">10mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="50">50mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="100">100mm</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                      <tr>
+                                            <td colspan="2">
+                                                <span>Drive 4</span>
+                                                <div class="btn-group" id="feed4">
+                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="1">1mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="5">5mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="10">10mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="50">50mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="100">100mm</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+
+
                                     </tbody>
                                 </table>
                             </div>

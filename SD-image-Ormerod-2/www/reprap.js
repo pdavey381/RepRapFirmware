@@ -20,6 +20,9 @@ var bedColour = "rgb(69,75,255)"; //blue
 var headColour1 = "rgb(252,45,45)"; //red
 var headColour2 = "rgb(92,183,92)"; //green
 var headColour3 = "rgb(236,155,40)"; //orange
+var setTemp1 = "-273";
+var setTemp2 = "-273";
+var setTemp3 = "-273";
 
 var gFile = [];
 var macroGs = ['setbed.g'];
@@ -123,25 +126,31 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
     $.askElle('gcode', "M140 S" + $(this).text());
 });
 $('div#headTemperature1 button#setHeadTemp1').on('click', function() {
-        $.askElle('gcode', "G10 P101 S" + $('input#headTempInput1').val() + "\nT101");
+        setTemp1 = $('input#headTempInput1').val();
+        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
 });
 $('div#headTemperature2 button#setHeadTemp2').on('click', function() {
-        $.askElle('gcode', "G10 P102 S" + $('input#headTempInput2').val() + "\nT102");
+       setTemp2 = $('input#headTempInput2').val();
+        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
 });
 $('div#headTemperature3 button#setHeadTemp3').on('click', function() {
-        $.askElle('gcode', "G10 P103 S" + $('input#headTempInput3').val() + "\nT103");
+       setTemp3 = $('input#headTempInput3').val();
+        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
 });
 $('div#headTemperature1').on('click', 'a#headTempLink1', function() {
     $('input#headTempInput1').val($(this).text());
-    $.askElle('gcode', "G10 P101 S" + $(this).text() + "\nT101");
+	 setTemp1 = $(this).text();
+    $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
 });
 $('div#headTemperature2').on('click', 'a#headTempLink2', function() {
     $('input#headTempInput2').val($(this).text());
-    $.askElle('gcode', "G10 P102 S" + $(this).text() + "\nT102");
+	 setTemp2 = $(this).text();
+    $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
 });
 $('div#headTemperature3').on('click', 'a#headTempLink3', function() {
     $('input#headTempInput3').val($(this).text());
-    $.askElle('gcode', "G10 P103 S" + $(this).text() + "\nT103");
+	 setTemp3 = $(this).text();
+    $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -152,19 +161,22 @@ $('input#bedTempInput').keydown(function(event) {
 $('input#headTempInput1').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P101 S" + $(this).val() + "\nT101");
+		  setTemp1 = $(this).val();
+        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
     }
 });
 $('input#headTempInput2').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P102 S" + $(this).val() + "\nT102");
+		  setTemp2 = $(this).val();
+        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
     }
 });
 $('input#headTempInput3').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P103 S" + $(this).val() + "\nT103");
+		  setTemp3 = $(this).val();
+        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -215,16 +227,57 @@ $('div#headTemperature3 ul').on('click', 'a#addHeadTemp3', function() {
 });
 
 //feed controls
-$('div#feed button#feed').on('click', function() {
+$('div#feed0 button#feed0').on('click', function() {
     var amount = $(this).val();
     var dir = "";
     if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
         dir = "-";
     }
     var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nG1 E" + dir + amount + feedRate + "\nM121";
+    var code = "M120\nM83\nT127\nG1 E" + dir + amount + ":0:0:0:0" + feedRate + "\nM121";
     $.askElle('gcode', code);
 });
+$('div#feed1 button#feed1').on('click', function() {
+    var amount = $(this).val();
+    var dir = "";
+    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
+        dir = "-";
+    }
+    var feedRate = " F" + $('input[name="speed"]:checked').val();
+    var code = "M120\nM83\nT127\nG1 E0:" + dir + amount + ":0:0:0" + feedRate + "\nM121";
+    $.askElle('gcode', code);
+});
+$('div#feed2 button#feed2').on('click', function() {
+    var amount = $(this).val();
+    var dir = "";
+    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
+        dir = "-";
+    }
+    var feedRate = " F" + $('input[name="speed"]:checked').val();
+    var code = "M120\nM83\nT127\nG1 E0:0:" + dir + amount + ":0:0" + feedRate + "\nM121";
+    $.askElle('gcode', code);
+});
+$('div#feed3 button#feed3').on('click', function() {
+    var amount = $(this).val();
+    var dir = "";
+    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
+        dir = "-";
+    }
+    var feedRate = " F" + $('input[name="speed"]:checked').val();
+    var code = "M120\nM83\nT127\nG1 E0:0:0:" + dir + amount + ":0" + feedRate + "\nM121";
+    $.askElle('gcode', code);
+});
+$('div#feed4 button#feed4').on('click', function() {
+    var amount = $(this).val();
+    var dir = "";
+    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
+        dir = "-";
+    }
+    var feedRate = " F" + $('input[name="speed"]:checked').val();
+    var code = "M120\nM83\nT127\nG1 E0:0:0:0:" + dir + amount + feedRate + "\nM121";
+    $.askElle('gcode', code);
+});
+
 
 //gcodes
 $('div#sendG button#txtinput, div#sendG a').on('click', function() {    
