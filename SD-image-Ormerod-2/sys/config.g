@@ -7,7 +7,7 @@
 ; want to keep from your old file.
 ; 
 M111 S0                             ; Debug off
-M550 PMy RepRapPro Ormerod 2        ; Machine name (can be anything you like)
+M550 PRepRapPro Ormerod 2           ; Machine name (can be anything you like)
 M551 Preprap                        ; Machine password (currently not used)
 M540 PBE:EF:DE:AD:FE:ED 				; MAC Address
 M552 P192.168.1.14                  ; IP address
@@ -28,4 +28,7 @@ M203 X15000 Y15000 Z300 E3600       ; Maximum speeds (mm/min)
 M566 X1200 Y1200 Z30 E1200          ; Minimum speeds mm/minute 
 M563 P1 D0 H1                       ; Define tool 1
 G10 P1 S-273 R-273                  ; Set tool 1 operating and standby temperatures
+M563 P101 H1                        ; Define tool 101 to allow web interface to control heater 1
+M563 P102 H2                        ; Define tool 102 to allow web interface to control heater 2
+M563 P103 H3                        ; Define tool 103 to allow web interface to control heater 3
 

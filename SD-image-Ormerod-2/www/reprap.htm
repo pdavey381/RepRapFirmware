@@ -1,7 +1,7 @@
 <!DOCTYPE HTML> 
 <html>
     <head>
-        <title>Ormerod Control v0.65</title>
+        <title>Ormerod Control v0.65rrp</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <!-- Bootstrap -->
@@ -82,16 +82,16 @@ Requires reset button on duet to restart">STOP!</button>
                         <table class="table table-bordered" id="temp">
                             <tbody>
                                 <tr>
-                                    <th colspan="3" class="text-center">Heater Temps</th>
+                                    <th colspan="3" class="text-center">Heater Temperatures</th>
                                     <td rowspan="5">
-                                        <div id="tempchart" style="width: 250px; height: 120px ">
+                                        <div id="tempchart" style="width: 240px; height: 240px ">
 
                                         </div>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td style="padding-top: 15px"><strong><span id="headTxt1">Heater 1</span></strong></td>
+                                    <td style="padding-top: 15px"><strong><button style="background-color:rgb(252,45,45)" type="button" id="headTxt1" class="btn btn-danger disabled" value="0">Heater 1</button></strong></td>
                                     <td style="padding-top: 15px; width:60px"><span id="headTemp1">0</span>&deg;C</td>
                                     <td>
                                         <div class="input-group" id="headTemperature1">
@@ -103,13 +103,13 @@ Requires reset button on duet to restart">STOP!</button>
                                                     <li><a href="#" id='addHeadTemp1'>Add Temp</a></li>                                                
                                                 </ul>
                                             </div><!-- /btn-group -->
-                                            <input type="text" id='headTempInput1' class="form-control">
+                                            <input style="width:60px" type="text" id='headTempInput1' class="form-control">
                                         </div><!-- /input-group -->  
                                     </td>
                                 </tr>
 
 											<tr>
-                                    <td style="padding-top: 15px"><strong><span id="headTxt2">Heater 2</span></strong></td>
+                                    <td style="padding-top: 15px"><strong><button style="background-color:rgb(92,183,92)" type="button" id="headTxt2" class="btn btn-danger disabled" value="0">Heater 2</button></strong></td>
                                     <td style="padding-top: 15px; width:60px"><span id="headTemp2">0</span>&deg;C</td>
                                     <td>
                                         <div class="input-group" id="headTemperature2">
@@ -121,13 +121,13 @@ Requires reset button on duet to restart">STOP!</button>
                                                     <li><a href="#" id='addHeadTemp2'>Add Temp</a></li>                                                
                                                 </ul>
                                             </div><!-- /btn-group -->
-                                            <input type="text" id='headTempInput2' class="form-control">
+                                            <input style="width:60px" type="text" id='headTempInput2' class="form-control">
                                         </div><!-- /input-group -->  
                                     </td>
                                 </tr>
 
 											<tr>
-                                    <td style="padding-top: 15px"><strong><span id="headTxt3">Heater 3</span></strong></td>
+                                    <td style="padding-top: 15px"><strong><button style="background-color:rgb(236,155,40)" type="button" id="headTxt3" class="btn btn-danger disabled" value="0">Heater 3</button></strong></td>
                                     <td style="padding-top: 15px; width:60px"><span id="headTemp3">0</span>&deg;C</td>
                                     <td>
                                         <div class="input-group" id="headTemperature3">
@@ -139,13 +139,13 @@ Requires reset button on duet to restart">STOP!</button>
                                                     <li><a href="#" id='addHeadTemp3'>Add Temp</a></li>                                                
                                                 </ul>
                                             </div><!-- /btn-group -->
-                                            <input type="text" id='headTempInput3' class="form-control">
+                                            <input style="width:60px" type="text" id='headTempInput3' class="form-control">
                                         </div><!-- /input-group -->  
                                     </td>
                                 </tr>
                                 
                                 <tr>
-                                    <td style="padding-top: 15px"><strong><span id="bedTxt">Bed</span></strong></td>
+                                    <td style="padding-top: 15px"><button style="background-color:rgb(69,75,255)" type="button" id="bedTxt" class="btn btn-danger disabled" value="0">Bed</button><strong></strong></td>
                                     <td style="padding-top: 15px; width:60px"><span id="bedTemp">0</span>&deg;C</td>
                                     <td>
                                         <div class="input-group" id="bedTemperature">
@@ -157,7 +157,7 @@ Requires reset button on duet to restart">STOP!</button>
                                                     <li><a href="#" id='addBedTemp'>Add Temp</a></li>                                                    
                                                 </ul>
                                             </div><!-- /btn-group -->
-                                            <input type="text" id='bedTempInput' class="form-control">
+                                            <input style="width:60px" type="text" id='bedTempInput' class="form-control">
                                         </div><!-- /input-group -->                                        
                                     </td>
                                 </tr>                                
@@ -313,6 +313,7 @@ Requires reset button on duet to restart">STOP!</button>
                                 <a href="#" role="button" class="btn btn-default disabled" title="Move X & Y axes to zero">G1 X0 Y0</a>
                                 <a href="#" role="button" class="btn btn-default disabled" title="Move Z axis to zero">G1 Z0</a>
                                 <a href="#" role="button" class="btn btn-default disabled" title="Move X & Y to Bed Centre">G1 X100 Y100</a>
+                                <a href="#" role="button" class="btn btn-default disabled" title="Probe bed & set bed equation">G32</a>
                                 </td></tr>
                                 </table>
                             </div>
@@ -501,7 +502,7 @@ Requires reset button on duet to restart">STOP!</button>
 
         <div id="footer">
             <div class="container text-middle">
-                <p class="text-muted"><small><a href="//forums.reprap.org/read.php?340,290811" target="_blank">get help here</a><span class="pull-right">Web Interface by iamburny :) </span></small>
+                <p class="text-muted"><small><a href="//reprappro.com/support-channel/" target="_blank">get help here</a><span class="pull-right">Web Interface by iamburny & RepRapPro </span></small>
                 </p>
             </div>
         </div>     

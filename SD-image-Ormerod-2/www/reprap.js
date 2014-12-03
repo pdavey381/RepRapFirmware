@@ -1,6 +1,7 @@
 /*! Reprap Ormerod Web Control | by Matt Burnett <matt@burny.co.uk>. | open license
+ *  Modified by ab/RepRapPro
  */
-var ver = 0.65; //App version
+var ver = '0.65rrp'; //App version
 var polling = false; 
 var webPrinting = false;
 var printing = false;
@@ -15,10 +16,10 @@ var maxDataPoints = 200;
 var chartData = [[], [], [], []];
 var maxLayerBars = 100;
 var layerData = [];
-var bedColour = "#454BFF"; //blue
-var headColour1 = "#FC2D2D"; //red
-var headColour2 = "#2DFC2D"; //green
-var headColour3 = "#FCAC2D"; //orange
+var bedColour = "rgb(69,75,255)"; //blue
+var headColour1 = "rgb(252,45,45)"; //red
+var headColour2 = "rgb(92,183,92)"; //green
+var headColour3 = "rgb(236,155,40)"; //orange
 
 var gFile = [];
 var macroGs = ['setbed.g'];
@@ -64,10 +65,10 @@ $(document).ready(function() {
     }
 
     //chart line colours
-    $('#bedTxt').css("color", bedColour);
-    $('#headTxt1').css("color", headColour1);
-    $('#headTxt2').css("color", headColour2);
-    $('#headTxt3').css("color", headColour3);
+   // $('#bedTxt').css("color", bedColour);
+   // $('#headTxt1').css("color", headColour1);
+   // $('#headTxt2').css("color", headColour2);
+   // $('#headTxt3').css("color", headColour3);
 
     chart = $.plot("#tempchart", chartData, {
         series: {shadowSize: 0},
@@ -91,7 +92,7 @@ $(document).ready(function() {
     });
 
     message('success', 'Page Load Complete');
-    $('button#connect, button#printing').removeClass('disabled');
+    $('button#connect, button#printing, button#headTxt1, button#headTxt2, button#headTxt3, button#bedTxt').removeClass('disabled');
     
     if (getHTMLver() < ver) {
         //pop message
@@ -122,25 +123,25 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
     $.askElle('gcode', "M140 S" + $(this).text());
 });
 $('div#headTemperature1 button#setHeadTemp1').on('click', function() {
-        $.askElle('gcode', "G10 P1 S" + $('input#headTempInput1').val() + "\nT1");
+        $.askElle('gcode', "G10 P101 S" + $('input#headTempInput1').val() + "\nT101");
 });
 $('div#headTemperature2 button#setHeadTemp2').on('click', function() {
-        $.askElle('gcode', "G10 P2 S" + $('input#headTempInput2').val() + "\nT2");
+        $.askElle('gcode', "G10 P102 S" + $('input#headTempInput2').val() + "\nT102");
 });
 $('div#headTemperature3 button#setHeadTemp3').on('click', function() {
-        $.askElle('gcode', "G10 P3 S" + $('input#headTempInput3').val() + "\nT3");
+        $.askElle('gcode', "G10 P103 S" + $('input#headTempInput3').val() + "\nT103");
 });
 $('div#headTemperature1').on('click', 'a#headTempLink1', function() {
     $('input#headTempInput1').val($(this).text());
-    $.askElle('gcode', "G10 P1 S" + $(this).text() + "\nT1");
+    $.askElle('gcode', "G10 P101 S" + $(this).text() + "\nT101");
 });
 $('div#headTemperature2').on('click', 'a#headTempLink2', function() {
     $('input#headTempInput2').val($(this).text());
-    $.askElle('gcode', "G10 P2 S" + $(this).text() + "\nT2");
+    $.askElle('gcode', "G10 P102 S" + $(this).text() + "\nT102");
 });
 $('div#headTemperature3').on('click', 'a#headTempLink3', function() {
     $('input#headTempInput3').val($(this).text());
-    $.askElle('gcode', "G10 P3 S" + $(this).text() + "\nT3");
+    $.askElle('gcode', "G10 P103 S" + $(this).text() + "\nT103");
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -151,19 +152,19 @@ $('input#bedTempInput').keydown(function(event) {
 $('input#headTempInput1').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P1 S" + $(this).val() + "\nT1");
+        $.askElle('gcode', "G10 P101 S" + $(this).val() + "\nT101");
     }
 });
 $('input#headTempInput2').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P2 S" + $(this).val() + "\nT2");
+        $.askElle('gcode', "G10 P102 S" + $(this).val() + "\nT102");
     }
 });
 $('input#headTempInput3').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P3 S" + $(this).val() + "\nT3");
+        $.askElle('gcode', "G10 P103 S" + $(this).val() + "\nT103");
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -288,9 +289,9 @@ $('div#panicBtn button').on('click', function() {
             btnVal = "M1";
             //switch off heaters
             $.askElle('gcode', "M140 S0"); //bed off
-            $.askElle('gcode', "G10 P1 S-273\nT1"); //head 0 off
-            $.askElle('gcode', "G10 P2 S-273\nT2"); //head 1 off
-            $.askElle('gcode', "G10 P3 S-273\nT3"); //head 2 off
+            $.askElle('gcode', "G10 P1 S-273\nT101"); //head 0 off
+            $.askElle('gcode', "G10 P2 S-273\nT102"); //head 1 off
+            $.askElle('gcode', "G10 P3 S-273\nT103"); //head 2 off
             resetLayerData();
         case "M24":
             //resume
@@ -722,6 +723,10 @@ function updatePage() {
     var status = $.askElle("poll", "");
     if (!status || !polling) {
         $('button#connect').removeClass('btn-success').addClass('btn-danger');
+        $('button#headTxt1').removeClass('btn-success').addClass('btn-danger');
+        $('button#headTxt2').removeClass('btn-success').addClass('btn-danger');
+        $('button#headTxt3').removeClass('btn-success').addClass('btn-danger');
+        $('button#bedTxt').removeClass('btn-success').addClass('btn-danger');
         $('button#printing').removeClass('btn-warning').removeClass('btn-success').addClass('btn-danger').text("RepRap machine is disconnected.");
         if (polling) {
             message('danger', "<strong>Warning!</strong> Ormerod webserver is probably broken, power cycle/reset your Duet Board :(");
@@ -735,6 +740,10 @@ function updatePage() {
         disableButtons("panic");
     } else {
         $('button#connect').removeClass('btn-danger').addClass('btn-success').text("Online");
+        $('button#headTxt1').removeClass('btn-danger').addClass('btn-success');
+        $('button#headTxt2').removeClass('btn-danger').addClass('btn-success');
+        $('button#headTxt3').removeClass('btn-danger').addClass('btn-success');
+        $('button#bedTxt').removeClass('btn-danger').addClass('btn-success');
         //Connected Hoorahhh!
         if (messageSeqId !== status.seq) {
             messageSeqId = status.seq;
