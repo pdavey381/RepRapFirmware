@@ -33,6 +33,7 @@ var headColour3 = "rgb(236,155,40)"; //orange
 var setTemp1 = "-273";
 var setTemp2 = "-273";
 var setTemp3 = "-273";
+var selectedTool = 1;
 
 var gFile = [];
 var macroGs = ['setbed.g'];
@@ -139,29 +140,35 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
 $('div#headTemperature1 button#setHeadTemp1').on('click', function() {
         setTemp1 = $('input#headTempInput1').val();
         $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
+		  selectedTool = 126;
 });
 $('div#headTemperature2 button#setHeadTemp2').on('click', function() {
        setTemp2 = $('input#headTempInput2').val();
-        $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
+       $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
+		 selectedTool = 125;
 });
 $('div#headTemperature3 button#setHeadTemp3').on('click', function() {
        setTemp3 = $('input#headTempInput3').val();
         $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
+		 selectedTool = 124;
 });
 $('div#headTemperature1').on('click', 'a#headTempLink1', function() {
     $('input#headTempInput1').val($(this).text());
 	 setTemp1 = $(this).text();
     $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
+    selectedTool = 126;
 });
 $('div#headTemperature2').on('click', 'a#headTempLink2', function() {
     $('input#headTempInput2').val($(this).text());
 	 setTemp2 = $(this).text();
     $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
+	 selectedTool = 125;
 });
 $('div#headTemperature3').on('click', 'a#headTempLink3', function() {
     $('input#headTempInput3').val($(this).text());
 	 setTemp3 = $(this).text();
     $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
+	 selectedTool = 124;
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -174,6 +181,7 @@ $('input#headTempInput1').keydown(function(event) {
         event.preventDefault();
 		  setTemp1 = $(this).val();
         $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
+		  selectedTool = 126;
     }
 });
 $('input#headTempInput2').keydown(function(event) {
@@ -181,6 +189,7 @@ $('input#headTempInput2').keydown(function(event) {
         event.preventDefault();
 		  setTemp2 = $(this).val();
         $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
+		  selectedTool = 125;
     }
 });
 $('input#headTempInput3').keydown(function(event) {
@@ -188,6 +197,7 @@ $('input#headTempInput3').keydown(function(event) {
         event.preventDefault();
 		  setTemp3 = $(this).val();
         $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
+		  selectedTool = 124;
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -256,7 +266,7 @@ $('div#feed button#feed').on('click', function() {
 		dir + p2 + ":" +
 		dir + p3 + ":" +
 		dir + p4 +
-		feedRate + "\nM121";
+		feedRate + "\nM121\nT" + selectedTool + "\n";
     $.askElle('gcode', code);
 });
 
