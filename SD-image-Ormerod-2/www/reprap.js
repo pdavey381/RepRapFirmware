@@ -238,56 +238,28 @@ $('div#headTemperature3 ul').on('click', 'a#addHeadTemp3', function() {
 });
 
 //feed controls
-$('div#feed0 button#feed0').on('click', function() {
+$('div#feed button#feed').on('click', function() {
     var amount = $(this).val();
     var dir = "";
     if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
         dir = "-";
     }
     var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nT127\nG1 E" + dir + amount + ":0:0:0:0" + feedRate + "\nM121";
+    var p0 = parseFloat(document.getElementById('drive0_P').value)*amount;
+    var p1 = parseFloat(document.getElementById('drive1_P').value)*amount;
+    var p2 = parseFloat(document.getElementById('drive2_P').value)*amount;
+    var p3 = parseFloat(document.getElementById('drive3_P').value)*amount;
+    var p4 = parseFloat(document.getElementById('drive4_P').value)*amount;
+    var code = "M120\nM83\nT127\nG1 E" + 
+		dir + p0 + ":" +
+		dir + p1 + ":" +
+		dir + p2 + ":" +
+		dir + p3 + ":" +
+		dir + p4 +
+		feedRate + "\nM121";
     $.askElle('gcode', code);
 });
-$('div#feed1 button#feed1').on('click', function() {
-    var amount = $(this).val();
-    var dir = "";
-    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
-        dir = "-";
-    }
-    var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nT127\nG1 E0:" + dir + amount + ":0:0:0" + feedRate + "\nM121";
-    $.askElle('gcode', code);
-});
-$('div#feed2 button#feed2').on('click', function() {
-    var amount = $(this).val();
-    var dir = "";
-    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
-        dir = "-";
-    }
-    var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nT127\nG1 E0:0:" + dir + amount + ":0:0" + feedRate + "\nM121";
-    $.askElle('gcode', code);
-});
-$('div#feed3 button#feed3').on('click', function() {
-    var amount = $(this).val();
-    var dir = "";
-    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
-        dir = "-";
-    }
-    var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nT127\nG1 E0:0:0:" + dir + amount + ":0" + feedRate + "\nM121";
-    $.askElle('gcode', code);
-});
-$('div#feed4 button#feed4').on('click', function() {
-    var amount = $(this).val();
-    var dir = "";
-    if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
-        dir = "-";
-    }
-    var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nT127\nG1 E0:0:0:0:" + dir + amount + feedRate + "\nM121";
-    $.askElle('gcode', code);
-});
+
 
 
 //gcodes
@@ -443,9 +415,9 @@ function getCookies() {
     if (!storage.get('settings')) {
         storage.set('settings', { pollDelay : 1000, layerHeight : 0.24, halfz : 0, noOK : 0 });
     }
-    //if (!storage.get('temps')) {
+    if (!storage.get('temps')) {
         storage.set('temps', {'bed' : [120,65,0], 'head1' : [240,185,0], 'head2' : [240,185,0], 'head3' : [240,185,0]});
-    //}
+    }
 }
 
 function loadSettings() {
@@ -692,7 +664,7 @@ function getFileName(filename) {
 function disableButtons(which) {
     switch (which) {
         case "head":
-            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile').addClass('disabled');
+            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile, table#proportions input').addClass('disabled');
             break;
         case "panic":
             $('div#panicBtn button').addClass('disabled');
@@ -710,7 +682,7 @@ function disableButtons(which) {
 function enableButtons(which) {
     switch (which) {
         case "head":
-            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile').removeClass('disabled');
+            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile, table#proportions input').removeClass('disabled');
             break;
         case "panic":
             $('div#panicBtn button').removeClass('disabled');

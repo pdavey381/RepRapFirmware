@@ -289,71 +289,35 @@ Requires reset button on duet to restart">STOP!</button>
                                             </td>
                                         </tr>
 
+													 <tr>
+														<td colspan="2">
+															<span>Proportions (5 drives):</span>
+															<table class="table" id="proportions">
+															 <tbody><tr>
+																<td><input class="btn btn-default" style="width:60px" type="text" id="drive0_P" value = "1.0"></td>
+																<td><input class="btn btn-default" style="width:60px" type="text" id="drive1_P" value = "0.0"></td>
+																<td><input class="btn btn-default" style="width:60px" type="text" id="drive2_P" value = "0.0"></td>
+																<td><input class="btn btn-default" style="width:60px" type="text" id="drive3_P" value = "0.0"></td>
+																<td><input class="btn btn-default" style="width:60px" type="text" id="drive4_P" value = "0.0"></td>
+															 </tr><tbody>
+															</table>
+														</td>
+                                        </tr>
+
                                         <tr>
                                             <td colspan="2">
-                                                <span>Drive 0</span>
-                                                <div class="btn-group" id="feed0">
-                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="1">1mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="5">5mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="10">10mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="50">50mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed0" value="100">100mm</button>
+                                                <span>Feed:</span>
+                                                <div class="btn-group" id="feed">
+                                                    <button type="button" class="btn btn-default disabled" id="feed" value="1">1mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed" value="5">5mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed" value="10">10mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed" value="50">50mm</button>
+                                                    <button type="button" class="btn btn-default disabled" id="feed" value="100">100mm</button>
                                                 </div>
                                             </td>
                                         </tr>
 
-                                      <tr>
-                                            <td colspan="2">
-                                         			<span>Drive 1</span>
-                                                <div class="btn-group" id="feed1">
-                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="1">1mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="5">5mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="10">10mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="50">50mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed1" value="100">100mm</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                      <tr>
-                                            <td colspan="2">
-                                               <span>Drive 2</span>
-                                                <div class="btn-group" id="feed2">
-                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="1">1mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="5">5mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="10">10mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="50">50mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed2" value="100">100mm</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                      <tr>
-                                            <td colspan="2">
-                                               <span>Drive 3</span>
-                                                <div class="btn-group" id="feed3">
-                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="1">1mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="5">5mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="10">10mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="50">50mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed3" value="100">100mm</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                      <tr>
-                                            <td colspan="2">
-                                                <span>Drive 4</span>
-                                                <div class="btn-group" id="feed4">
-                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="1">1mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="5">5mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="10">10mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="50">50mm</button>
-                                                    <button type="button" class="btn btn-default disabled" id="feed4" value="100">100mm</button>
-                                                </div>
-                                            </td>
-                                        </tr>
-
+                                      
 
 
                                     </tbody>
