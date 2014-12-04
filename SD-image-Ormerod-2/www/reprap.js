@@ -1,7 +1,15 @@
 /*! Reprap Ormerod Web Control | by Matt Burnett <matt@burny.co.uk>. | open license
- *  Modified by ab/RepRapPro
+ *  Modified by adrian@reprappro.com
+ *
+ * This expects the config.g file to define four special tools for the web interface to use to control the machine:
+ *
+ * M563 P127 D0:1:2:3:4                ; Define tool 127 to allow the web interface to control all drives
+ * M563 P126 H1							   ; 126 gives Heater 1...
+ * M563 P125 H2								; ...Heater 2...
+ * M563 P124 H3								; ...Heater 3
+ *
  */
-var ver = '0.65rrp'; //App version
+var ver = 0.65; //App version
 var polling = false; 
 var webPrinting = false;
 var printing = false;
@@ -10,6 +18,8 @@ var chart,chart2,ormerodIP,layerCount,currentLayer,objHeight,printStartTime,gFil
 var maxUploadBuffer = 800;
 var maxUploadCommands = 200;
 var messageSeqId = 0;
+var machineName = "RepRap";
+var activeHeaters = 2;
 
 //Temp/Layer Chart settings
 var maxDataPoints = 200;
@@ -67,12 +77,13 @@ $(document).ready(function() {
         chartData[3].push([i, 10]);
     }
 
-    //chart line colours
+    
    // $('#bedTxt').css("color", bedColour);
    // $('#headTxt1').css("color", headColour1);
    // $('#headTxt2').css("color", headColour2);
    // $('#headTxt3').css("color", headColour3);
 
+	//chart line colours
     chart = $.plot("#tempchart", chartData, {
         series: {shadowSize: 0},
         colors: [bedColour, headColour1, headColour2, headColour3],
@@ -127,30 +138,30 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
 });
 $('div#headTemperature1 button#setHeadTemp1').on('click', function() {
         setTemp1 = $('input#headTempInput1').val();
-        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+        $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
 });
 $('div#headTemperature2 button#setHeadTemp2').on('click', function() {
        setTemp2 = $('input#headTempInput2').val();
-        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+        $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
 });
 $('div#headTemperature3 button#setHeadTemp3').on('click', function() {
        setTemp3 = $('input#headTempInput3').val();
-        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+        $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
 });
 $('div#headTemperature1').on('click', 'a#headTempLink1', function() {
     $('input#headTempInput1').val($(this).text());
 	 setTemp1 = $(this).text();
-    $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+    $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
 });
 $('div#headTemperature2').on('click', 'a#headTempLink2', function() {
     $('input#headTempInput2').val($(this).text());
 	 setTemp2 = $(this).text();
-    $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+    $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
 });
 $('div#headTemperature3').on('click', 'a#headTempLink3', function() {
     $('input#headTempInput3').val($(this).text());
 	 setTemp3 = $(this).text();
-    $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+    $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -162,21 +173,21 @@ $('input#headTempInput1').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
 		  setTemp1 = $(this).val();
-        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+        $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
     }
 });
 $('input#headTempInput2').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
 		  setTemp2 = $(this).val();
-        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+        $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
     }
 });
 $('input#headTempInput3').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
 		  setTemp3 = $(this).val();
-        $.askElle('gcode', "G10 P127 S" + setTemp1 + ":" + setTemp2 + ":" + setTemp3 + "\nT127");
+        $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -805,15 +816,21 @@ function updatePage() {
         buffer = status.buff;
 		  
         if(status.reprap_name != null)
-			name = status.reprap_name;
+			machineName = status.reprap_name;
 		  else
-			name = "RepRap";
+			machineName = "RepRap";
+
+        if(status.act != null)
+			activeHeaters = ~~status.act;
+		  else
+			activeHeaters = ~~2;
+
         homedWarning(status.hx,status.hy,status.hz);
         if (status.poll[0] === "P" || (webPrinting && !paused)) {
             //printing
             printing = true;
             objHeight = $('input#objheight').val();
-            $('button#printing').removeClass('btn-danger').removeClass('btn-warning').addClass('btn-success').text(name + " is printing.");
+            $('button#printing').removeClass('btn-danger').removeClass('btn-warning').addClass('btn-success').text(machineName + " is printing.");
             enableButtons('panic');
             disableButtons("head");
             disableButtons("gfilelist");
@@ -829,20 +846,20 @@ function updatePage() {
         } else if (status.poll[0] === "I" && !paused ) {
             //inactive, not printing
             printing = false;
-            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(name + " is ready.");
+            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(machineName + " is ready.");
             disableButtons("panic");
             enableButtons('head');
             enableButtons("gfilelist");
         } else if (status.poll[0] === "I" && paused) {
             //paused
             printing = true;
-            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(name + " is paused.");
+            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(machineName + " is paused.");
             enableButtons('panic');
             enableButtons('head');
         } else {
             //unknown state
             webPrinting = printing = paused = false;
-            $('button#printing').removeClass('btn-warning').removeClass('btn-success').addClass('btn-danger').text(name + " experienced an error!");
+            $('button#printing').removeClass('btn-warning').removeClass('btn-success').addClass('btn-danger').text(machineName + " experienced an error!");
             message('danger', 'Unknown Poll State : ' + status.poll[0]);
         }
 
@@ -855,9 +872,22 @@ function updatePage() {
         $('span#probe').text(status.probe);
 */
         $('span#bedTemp').text(status.poll[5]);
-        $('span#headTemp1').text(status.poll[6]);
-        $('span#headTemp2').text(status.poll[7]);
-        $('span#headTemp3').text(status.poll[8]);
+
+		  if((activeHeaters & 2) != 0)
+        	$('span#headTemp1').text(status.poll[6]);
+        else
+        	$('span#headTemp1').text("0.0");
+
+		  if((activeHeaters & 4) != 0)
+        	$('span#headTemp2').text(status.poll[7]);
+        else
+        	$('span#headTemp2').text("0.0");
+
+		  if((activeHeaters & 8) != 0)
+        	$('span#headTemp3').text(status.poll[8]);
+        else
+        	$('span#headTemp3').text("0.0");
+
         $('span#Xpos').text(status.poll[1]);
         $('span#Ypos').text(status.poll[2]);
         $('span#Zpos').text(status.poll[3]);
@@ -866,9 +896,25 @@ function updatePage() {
 
         //Temp chart stuff
         chartData[0].push(parseFloat(status.poll[5]));
-        chartData[1].push(parseFloat(status.poll[6]));
-        chartData[2].push(parseFloat(status.poll[7]));
-        chartData[3].push(parseFloat(status.poll[8]));
+
+		  if((activeHeaters & 2) != 0)
+        	chartData[1].push(parseFloat(status.poll[6]));
+        else
+        	chartData[1].push(0.0);
+
+		  if((activeHeaters & 4) != 0)
+        	chartData[2].push(parseFloat(status.poll[7]));
+        else
+        	chartData[2].push(0.0);
+
+		  if((activeHeaters & 8) != 0)
+        	chartData[3].push(parseFloat(status.poll[8]));
+        else
+        	chartData[3].push(0.0);
+
+        //chartData[1].push(parseFloat(status.poll[6]));
+        //chartData[2].push(parseFloat(status.poll[7]));
+        //chartData[3].push(parseFloat(status.poll[8]));
         chart.setData(parseChartData());
         chart.draw();
     }
