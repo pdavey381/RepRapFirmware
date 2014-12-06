@@ -208,8 +208,10 @@ void Tool::ResetTemperatureFault(int8_t wasDudHeater)
 bool Tool::AllHeatersAtHighTemperature()
 {
 	for(int8_t heater = 0; heater < heaterCount; heater++)
+	{
 		if(reprap.GetHeat()->GetTemperature(heaters[heater]) < HOT_ENOUGH_TO_EXTRUDE)
 			return false;
+	}
 	return true;
 }
 

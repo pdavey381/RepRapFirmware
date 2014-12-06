@@ -1196,7 +1196,8 @@ void GCodes::AddNewTool(GCodeBuffer *gb, char* reply)
 	{
 		gb->GetLongArray(drives, dCount);
 		seen = true;
-	}
+	} else
+		dCount = 0;
 
 	long heaters[HEATERS];
 	int hCount = HEATERS;
@@ -1204,7 +1205,8 @@ void GCodes::AddNewTool(GCodeBuffer *gb, char* reply)
 	{
 		gb->GetLongArray(heaters, hCount);
 		seen = true;
-	}
+	} else
+		hCount = 0;
 
 	if(seen)
 	{
