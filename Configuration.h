@@ -24,8 +24,8 @@ Licence: GPL
 #define CONFIGURATION_H
 
 #define NAME "RepRapFirmware"
-#define VERSION "0.99"
-#define DATE "2014-12-06"
+#define VERSION "1.0"
+#define DATE "2015-01-08"
 #define LAST_AUTHOR "reprappro"
 
 // Other firmware that we might switch to be compatible with.
@@ -47,6 +47,10 @@ enum Compatibility
 #define INCH_TO_MM (25.4)
 
 #define HEAT_SAMPLE_TIME (0.5) // Seconds
+
+#define HEAT_PWM_AVERAGE_TIME (5.0) // Seconds
+
+#define INV_HEAT_PWM_AVERAGE_COUNT (HEAT_SAMPLE_TIME/HEAT_PWM_AVERAGE_TIME)
 
 #define TEMPERATURE_CLOSE_ENOUGH (3.0) 		// Celsius
 #define TEMPERATURE_LOW_SO_DONT_CARE (40.0)	// Celsius

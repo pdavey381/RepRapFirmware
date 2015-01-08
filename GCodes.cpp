@@ -2333,7 +2333,12 @@ bool GCodes::HandleMcode(int code, GCodeBuffer *gb)
 		if(gb->Seen('S'))
 			platform->SetExtrusionAncilliaryPWM(gb->GetFValue());
 		else
-			snprintf(reply, STRING_LENGTH, "Extrusion ancilliary PWM: %.3f.", platform->GetExtrusionAncilliaryPWM());
+			snprintf(reply, STRING_LENGTH, "Extrusion ancillary PWM: %.3f.", platform->GetExtrusionAncilliaryPWM());
+		break;
+
+	case 573:
+		if(gb->Seen('P'))
+			snprintf(reply, STRING_LENGTH, "Average heater PWM: %.3f.", reprap.GetHeat()->GetAveragePWM(gb->GetIValue()));
 		break;
 
 	case 906: // Set/Report Motor currents
