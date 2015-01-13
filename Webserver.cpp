@@ -491,11 +491,11 @@ void Webserver::GetJsonResponse(const char* request)
 
     // Send the home state. To keep the messages short, we send 1 for homed and 0 for not homed, instead of true and false.
     strncat(jsonResponse, ",\"hx\":", STRING_LENGTH);
-    strncat(jsonResponse, (reprap.GetGCodes()->GetAxisIsHomed(0)) ? "1" : "0", STRING_LENGTH);
+    strncat(jsonResponse, (reprap.GetGCodes()->GetAxisHasBeenHomed(0)) ? "1" : "0", STRING_LENGTH);
     strncat(jsonResponse, ",\"hy\":", STRING_LENGTH);
-    strncat(jsonResponse, (reprap.GetGCodes()->GetAxisIsHomed(1)) ? "1" : "0", STRING_LENGTH);
+    strncat(jsonResponse, (reprap.GetGCodes()->GetAxisHasBeenHomed(1)) ? "1" : "0", STRING_LENGTH);
     strncat(jsonResponse, ",\"hz\":", STRING_LENGTH);
-    strncat(jsonResponse, (reprap.GetGCodes()->GetAxisIsHomed(2)) ? "1" : "0", STRING_LENGTH);
+    strncat(jsonResponse, (reprap.GetGCodes()->GetAxisHasBeenHomed(2)) ? "1" : "0", STRING_LENGTH);
 
     // Send the fraction printed
     strncat(jsonResponse, ",\"fraction_printed\":", STRING_LENGTH);

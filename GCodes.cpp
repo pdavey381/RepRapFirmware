@@ -86,7 +86,7 @@ void GCodes::Init()
   cannedCycleMoveCount = 0;
   cannedCycleMoveQueued = false;
   limitAxes = true;
-  axisIsHomed[X_AXIS] = axisIsHomed[Y_AXIS] = axisIsHomed[Z_AXIS] = false;
+  axisHasBeenHomed[X_AXIS] = axisHasBeenHomed[Y_AXIS] = axisHasBeenHomed[Z_AXIS] = false;
   toolChangeSequence = 0;
   active = true;
   longWait = platform->Time();
@@ -386,7 +386,7 @@ bool GCodes::LoadMoveBufferFromGCode(GCodeBuffer *gb, bool doingG92, bool applyL
 			{
 				moveArg += moveBuffer[axis];
 			}
-			if (applyLimits && axis < 2 && axisIsHomed[axis] && !doingG92)	// limit X & Y moves unless doing G92.  FIXME: No Z for the moment as we often need to move -ve to set the origin
+			if (applyLimits && axis < 2 && axisHasBeenHomed[axis] && !doingG92)	// limit X & Y moves unless doing G92.  FIXME: No Z for the moment as we often need to move -ve to set the origin
 			{
 				if (moveArg < 0.0)
 				{
@@ -399,7 +399,7 @@ bool GCodes::LoadMoveBufferFromGCode(GCodeBuffer *gb, bool doingG92, bool applyL
 			moveBuffer[axis] = moveArg;
 			if (doingG92)
 			{
-				axisIsHomed[axis] = true;		// doing a G92 is equivalent to homing the axis.  FIXME: No it's not if the coordinate specified wasn't 0.
+				axisHasBeenHomed[axis] = true;		// doing a G92 is equivalent to homing the axis.
 			}
 		}
 	}
@@ -655,7 +655,7 @@ bool GCodes::DoHome(char* reply, bool& error)
 			homeX = false;
 			homeY = false;
 			homeZ = false;
-			axisIsHomed[X_AXIS] = axisIsHomed[Y_AXIS] = axisIsHomed[Z_AXIS] = true;
+			axisHasBeenHomed[X_AXIS] = axisHasBeenHomed[Y_AXIS] = axisHasBeenHomed[Z_AXIS] = true;
 			return true;
 		}
 		return false;
@@ -667,7 +667,7 @@ bool GCodes::DoHome(char* reply, bool& error)
 		{
 			homeAxisMoveCount = 0;
 			homeX = false;
-			axisIsHomed[X_AXIS] = true;
+			axisHasBeenHomed[X_AXIS] = true;
 			return NoHome();
 		}
 		return false;
@@ -680,7 +680,7 @@ bool GCodes::DoHome(char* reply, bool& error)
 		{
 			homeAxisMoveCount = 0;
 			homeY = false;
-			axisIsHomed[Y_AXIS] = true;
+			axisHasBeenHomed[Y_AXIS] = true;
 			return NoHome();
 		}
 		return false;
@@ -690,7 +690,7 @@ bool GCodes::DoHome(char* reply, bool& error)
 	if(homeZ)
 	{
 		//FIXME this check should be optional
-		if (!(axisIsHomed[X_AXIS] && axisIsHomed[Y_AXIS]))
+		if (!(axisHasBeenHomed[X_AXIS] && axisHasBeenHomed[Y_AXIS]))
 		{
 			// We can only home Z if X and Y have already been homed. Possibly this should only be if we are using an IR probe.
 			strncpy(reply, "Must home X and Y before homing Z", STRING_LENGTH);
@@ -702,7 +702,7 @@ bool GCodes::DoHome(char* reply, bool& error)
 		{
 			homeAxisMoveCount = 0;
 			homeZ = false;
-			axisIsHomed[Z_AXIS] = true;
+			axisHasBeenHomed[Z_AXIS] = true;
 			return NoHome();
 		}
 		return false;
@@ -763,7 +763,7 @@ bool GCodes::DoSingleZProbeAtPoint()
 		if(DoCannedCycleMove(true))
 		{
 			cannedCycleMoveCount++;
-			axisIsHomed[Z_AXIS] = true;		// we now home the Z-axis in Move.cpp it is wasn't already
+			axisHasBeenHomed[Z_AXIS] = true;		// we now home the Z-axis in Move.cpp it is wasn't already
 		}
 		return false;
 
@@ -803,7 +803,7 @@ bool GCodes::DoSingleZProbe()
 	{
 		cannedCycleMoveCount = 0;
 		probeCount = 0;
-		axisIsHomed[Z_AXIS] = true;	// we have homed the Z axis. FIXME - no we haven't, we have set the Z zero which is not the same...
+		axisHasBeenHomed[Z_AXIS] = true;	// we have homed the Z axis. FIXME - no we haven't, we have set the Z zero which is not the same...
 		return true;
 	}
 	return false;
@@ -878,27 +878,9 @@ bool GCodes::SetSingleZProbeAtAPosition(GCodeBuffer *gb, char* reply)
 // triangle or four in the corners), then sets the bed transformation to compensate
 // for the bed not quite being the plane Z = 0.
 
-//bool GCodes::DoMultipleZProbe(char* reply)
 bool GCodes::SetBedEquationWithProbe()
 {
 	return DoFileMacro(SET_BED_EQUATION);
-//	if(reprap.GetMove()->NumberOfXYProbePoints() < 3)
-//	{
-//		platform->Message(HOST_MESSAGE, "Bed probing: there needs to be 3 or more points set.\n");
-//		return true;
-//	}
-//
-//	if(DoSingleZProbeAtPoint())
-//		probeCount++;
-//	if(probeCount >= reprap.GetMove()->NumberOfXYProbePoints())
-//	{
-//		probeCount = 0;
-//		zProbesSet = true;
-//		reprap.GetMove()->SetZProbing(false);
-//		reprap.GetMove()->SetProbedBedEquation(reply);
-//		return true;
-//	}
-//	return false;
 }
 
 // This returns the (X, Y) points to probe the bed at probe point count.  When probing,
@@ -1139,47 +1121,65 @@ bool GCodes::DoDwell(GCodeBuffer *gb)
 
 void GCodes::SetOrReportOffsets(char* reply, GCodeBuffer *gb)
 {
-  if(gb->Seen('P'))
-  {
-	  int8_t toolNumber = gb->GetIValue();
-	  Tool* tool = reprap.GetTool(toolNumber);
-	  if(tool == NULL)
-	  {
-		  snprintf(scratchString, STRING_LENGTH, "Attempt to set/report offsets and temperatures for non-existent tool: %d\n", toolNumber);
-		  platform->Message(HOST_MESSAGE, scratchString);
-		  return;
-	  }
-	  float standby[HEATERS];
-	  float active[HEATERS];
-	  tool->GetVariables(standby, active);
-	  bool setting = false;
-	  int hCount = tool->HeaterCount();
-	  if(hCount > 0)
-	  {
-		  if(gb->Seen('R'))
-		  {
-			  gb->GetFloatArray(standby, hCount);
-			  setting = true;
-		  }
-		  if(gb->Seen('S'))
-		  {
-			  gb->GetFloatArray(active, hCount);
-			  setting = true;
-		  }
-		  if(setting)
-			  tool->SetVariables(standby, active);
-		  else
-		  {
-			  reply[0] = 0;
-			  snprintf(reply, STRING_LENGTH, "Tool %d - Active/standby temperature(s): ", toolNumber);
-			  for(int8_t heater = 0; heater < hCount; heater++)
-			  {
-				  snprintf(scratchString, STRING_LENGTH, "%.1f/%.1f ", active[heater], standby[heater]);
-				  strncat(reply, scratchString, STRING_LENGTH);
-			  }
-		  }
-	  }
-  }
+	if(!gb->Seen('P'))
+		return;
+
+	int8_t toolNumber = gb->GetIValue();
+	Tool* tool = reprap.GetTool(toolNumber);
+	if(tool == NULL)
+	{
+		snprintf(scratchString, STRING_LENGTH, "Attempt to set/report offsets and temperatures for non-existent tool: %d\n", toolNumber);
+		platform->Message(HOST_MESSAGE, scratchString);
+		return;
+	}
+	float standby[HEATERS];
+	float active[HEATERS];
+	float offsets[AXES];
+	tool->GetTemperatureVariables(standby, active);
+	tool->GetOffsets(offsets);
+	bool setting = false;
+	int hCount = tool->HeaterCount();
+	if(hCount > 0)
+	{
+		if(gb->Seen('R'))
+		{
+			gb->GetFloatArray(standby, hCount);
+			setting = true;
+		}
+		if(gb->Seen('S'))
+		{
+			gb->GetFloatArray(active, hCount);
+			setting = true;
+		}
+	}
+	for(int8_t axis = 0; axis < AXES; axis++)
+	{
+		if(gb->Seen(axisLetters[axis]))
+		{
+			setting = true;
+			offsets[axis] = gb->GetFValue();
+		}
+	}
+	if(setting)
+	{
+		tool->SetTemperatureVariables(standby, active);
+		tool->SetOffsets(offsets);
+	} else
+	{
+		reply[0] = 0;
+		snprintf(reply, STRING_LENGTH, "Tool %d - Active/standby temperature(s): ", toolNumber);
+		for(int8_t heater = 0; heater < hCount; heater++)
+		{
+			snprintf(scratchString, STRING_LENGTH, "%.1f/%.1f ", active[heater], standby[heater]);
+			strncat(reply, scratchString, STRING_LENGTH);
+		}
+		strncat(reply, "Offsets: ", STRING_LENGTH);
+		for(int8_t axis = 0; axis < AXES; axis++)
+		{
+			snprintf(scratchString, STRING_LENGTH, "%c:%.1f ", axisLetters[axis], offsets[axis]);
+			strncat(reply, scratchString, STRING_LENGTH);
+		}
+	}
 }
 
 void GCodes::AddNewTool(GCodeBuffer *gb, char* reply)
@@ -1435,10 +1435,10 @@ void GCodes::SetToolHeaters(float temperature)
 
 	float standby[HEATERS];
 	float active[HEATERS];
-	tool->GetVariables(standby, active);
+	tool->GetTemperatureVariables(standby, active);
 	for(int8_t h = 0; h < tool->HeaterCount(); h++)
 		active[h] = temperature;
-	tool->SetVariables(standby, active);
+	tool->SetTemperatureVariables(standby, active);
 }
 
 // If the code to act on is completed, this returns true,
@@ -2506,7 +2506,7 @@ bool GCodes::HandleGcode(int code, GCodeBuffer *gb)
 		break;
 
 	case 32: // Probe Z at multiple positions and generate the bed transform
-		if (!(axisIsHomed[X_AXIS] && axisIsHomed[Y_AXIS]))
+		if (!(axisHasBeenHomed[X_AXIS] && axisHasBeenHomed[Y_AXIS]))
 		{
 			// We can only do a Z probe if X and Y have already been homed
 			strncpy(reply, "Must home X and Y before bed probing", STRING_LENGTH);

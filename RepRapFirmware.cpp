@@ -405,23 +405,23 @@ Tool* RepRap::GetTool(int toolNumber)
 	return NULL; // Not an error
 }
 
-void RepRap::SetToolVariables(int toolNumber, float* standbyTemperatures, float* activeTemperatures)
-{
-	Tool* tool = toolList;
-
-	while(tool)
-	{
-		if(tool->Number() == toolNumber)
-		{
-			tool->SetVariables(standbyTemperatures, activeTemperatures);
-			return;
-		}
-		tool = tool->Next();
-	}
-
-	snprintf(scratchString, STRING_LENGTH, "Attempt to set variables for a non-existent tool: %d.\n", toolNumber);
-	platform->Message(HOST_MESSAGE, scratchString);
-}
+//void RepRap::SetToolVariables(int toolNumber, float* standbyTemperatures, float* activeTemperatures, float* offsets)
+//{
+//	Tool* tool = toolList;
+//
+//	while(tool)
+//	{
+//		if(tool->Number() == toolNumber)
+//		{
+//			tool->SetVariables(standbyTemperatures, activeTemperatures, offsets);
+//			return;
+//		}
+//		tool = tool->Next();
+//	}
+//
+//	snprintf(scratchString, STRING_LENGTH, "Attempt to set variables for a non-existent tool: %d.\n", toolNumber);
+//	platform->Message(HOST_MESSAGE, scratchString);
+//}
 
 
 

@@ -372,6 +372,17 @@ bool Move::GetCurrentUserPosition(float m[])
 	if(!GetCurrentMachinePosition(m))
 		return false;
 	InverseTransform(m);
+	Tool* tool = reprap.GetCurrentTool();
+	float offsets[AXES];
+	if(tool == NULL)
+	{
+		for(int8_t axis = 0; axis < AXES; axis++)
+			offsets[axis] = 0.0;
+	} else
+		tool->GetOffsets(offsets);
+
+	for(int8_t axis = 0; axis < AXES; axis++)
+		m[axis] += offsets[axis];
 	return true;
 }
 
@@ -707,18 +718,36 @@ void Move::InverseAxisTransform(float xyzPoint[])
 	xyzPoint[X_AXIS] = xyzPoint[X_AXIS] - (tanXY*xyzPoint[Y_AXIS] + tanXZ*xyzPoint[Z_AXIS]);
 }
 
-
+// First we apply any tool offsets, then the axis transform, and finally the bed transform
 
 void Move::Transform(float xyzPoint[])
 {
+	Tool* tool = reprap.GetCurrentTool();
+	if(tool != NULL)
+	{
+		float offsets[AXES];
+		tool->GetOffsets(offsets);
+		for(int8_t axis = 0; axis < AXES; axis++)
+			xyzPoint[axis] -= offsets[axis];
+	}
 	AxisTransform(xyzPoint);
 	BedTransform(xyzPoint);
 }
+
+// The order of inverting transforms is the opposite of the above.
 
 void Move::InverseTransform(float xyzPoint[])
 {
 	InverseBedTransform(xyzPoint);
 	InverseAxisTransform(xyzPoint);
+	Tool* tool = reprap.GetCurrentTool();
+	if(tool != NULL)
+	{
+		float offsets[AXES];
+		tool->GetOffsets(offsets);
+		for(int8_t axis = 0; axis < AXES; axis++)
+			xyzPoint[axis] += offsets[axis];
+	}
 }
 
 

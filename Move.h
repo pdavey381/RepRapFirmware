@@ -370,11 +370,6 @@ inline long* LookAhead::MachineCoordinates()
 	return endPoint;
 }
 
-//inline int8_t LookAhead::GetMovementType()
-//{
-//	return movementType;
-//}
-
 //******************************************************************************************************
 
 inline bool DDA::Active()
@@ -605,7 +600,7 @@ inline void Move::HitLowStop(int8_t drive, LookAhead* la, DDA* hitDDA)
 		if(zProbing)
 		{
 			// Executing G32, so record the Z position at which we hit the end stop
-			if (gCodes->GetAxisIsHomed(drive))
+			if (gCodes->GetAxisHasBeenHomed(drive))
 			{
 				// Z-axis has already been homed, so just record the height of the bed at this point
 				lastZHit = ComputeCurrentCoordinate(drive, la, hitDDA);

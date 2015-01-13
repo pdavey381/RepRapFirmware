@@ -31,15 +31,16 @@ class Tool
 public:
 
 	Tool(int toolNumber, long d[], int dCount, long h[], int hCount);
-	void GetOffset(float& xx, float& yy, float& zz);
 	int DriveCount();
 	int Drive(int driveNumber);
 	bool ToolCanDrive();
 	int HeaterCount();
 	int Heater(int heaterNumber);
 	int Number();
-	void SetVariables(float* standby, float* active);
-	void GetVariables(float* standby, float* active);
+	void SetTemperatureVariables(float* standby, float* active);
+	void GetTemperatureVariables(float* standby, float* active);
+	void SetOffsets(float* off);
+	void GetOffsets(float* off);
 	void DefineMix(float* m);
 	float* GetMix() const;
 	void TurnMixingOn();
@@ -73,6 +74,7 @@ private:
 	int* heaters;
 	float* activeTemperatures;
 	float* standbyTemperatures;
+	float offsets[AXES];
 	int heaterCount;
 	Tool* next;
 	bool active;

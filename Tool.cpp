@@ -35,6 +35,9 @@ Tool::Tool(int toolNumber, long d[], int dCount, long h[], int hCount)
 	heaterFault = false;
 	mixing = false;
 
+	for(int8_t axis = 0; axis < AXES; axis++)
+		offsets[axis] = 0.0;
+
 	if(driveCount > 0)
 	{
 		if(driveCount > DRIVES - AXES)
@@ -90,11 +93,20 @@ void Tool::Print(char* reply)
 	comma = ',';
 	for(int8_t heater = 0; heater < heaterCount; heater++)
 	{
-			if(heater >= heaterCount - 1)
-				comma = ';';
-			snprintf(scratchString, STRING_LENGTH, "%d (%.1f/%.1f)%c ", heaters[heater],
-					activeTemperatures[heater], standbyTemperatures[heater], comma);
-			strncat(reply, scratchString, STRING_LENGTH);
+		if(heater >= heaterCount - 1)
+			comma = ';';
+		snprintf(scratchString, STRING_LENGTH, "%d (%.1f/%.1f)%c ", heaters[heater],
+				activeTemperatures[heater], standbyTemperatures[heater], comma);
+		strncat(reply, scratchString, STRING_LENGTH);
+	}
+	strncat(reply, " Offsets: ", STRING_LENGTH);
+	comma = ',';
+	for(int8_t axis = 0; axis < AXES; axis++)
+	{
+		if(axis >= AXES-1)
+			comma = ';';
+		snprintf(scratchString, STRING_LENGTH, "%.1f%c ", offsets[axis], comma);
+		strncat(reply, scratchString, STRING_LENGTH);
 	}
 	strncat(reply, " status: ", STRING_LENGTH);
 	if(active)
@@ -242,7 +254,7 @@ void Tool::Standby()
 	active = false;
 }
 
-void Tool::SetVariables(float* standby, float* active)
+void Tool::SetTemperatureVariables(float* standby, float* active)
 {
 	for(int8_t heater = 0; heater < heaterCount; heater++)
 	{
@@ -253,13 +265,25 @@ void Tool::SetVariables(float* standby, float* active)
 	}
 }
 
-void Tool::GetVariables(float* standby, float* active)
+void Tool::GetTemperatureVariables(float* standby, float* active)
 {
 	for(int8_t heater = 0; heater < heaterCount; heater++)
 	{
 		active[heater] = activeTemperatures[heater];
 		standby[heater] = standbyTemperatures[heater];
 	}
+}
+
+void Tool::SetOffsets(float* off)
+{
+	for(int8_t axis = 0; axis < AXES; axis++)
+		offsets[axis] = off[axis];
+}
+
+void Tool::GetOffsets(float* off)
+{
+	for(int8_t axis = 0; axis < AXES; axis++)
+		off[axis] = offsets[axis];
 }
 
 bool Tool::ToolCanDrive()

@@ -84,7 +84,7 @@ class GCodes
     float FractionOfFilePrinted() const;								// Are we in the middle of printing a file? -ve means no, value is fraction printed
     void Diagnostics();													// Send helpful information out
     bool HaveIncomingData() const;										// Is there something that we have to do?
-    bool GetAxisIsHomed(uint8_t axis) const { return axisIsHomed[axis]; } // Is the axis at 0?
+    bool GetAxisHasBeenHomed(uint8_t axis) const { return axisHasBeenHomed[axis]; } // Is the axis at 0?
     
   private:
   
@@ -176,7 +176,7 @@ class GCodes
     bool zProbesSet;							// True if all Z probing is done and we can set the bed equation
     float longWait;								// Timer for things that happen occasionally (seconds)
     bool limitAxes;								// Don't think outside the box.
-    bool axisIsHomed[3];						// These record which of the axes have been homed
+    bool axisHasBeenHomed[3];						// These record which of the axes have been homed
     int8_t toolChangeSequence;					// Steps through the tool change procedure
 };
 
