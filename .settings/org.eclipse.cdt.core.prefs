@@ -196,7 +196,7 @@ environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RECIPE
 environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RECIPE.SIZE.REGEX/value=\\.text\\s+([0-9]+).*
 environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.PATH/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.PATH/operation=replace
-environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.PATH/value=/usr/local/arduino-1.5.4
+environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.PATH/value=/usr/local/arduino
 environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.VERSION/delimiter=\:
 environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.VERSION/operation=replace
 environment/project/it.baeyens.arduino.core.toolChain.release.674980254/A.RUNTIME.IDE.VERSION/value=154

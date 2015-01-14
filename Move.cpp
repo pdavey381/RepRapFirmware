@@ -372,17 +372,6 @@ bool Move::GetCurrentUserPosition(float m[])
 	if(!GetCurrentMachinePosition(m))
 		return false;
 	InverseTransform(m);
-	Tool* tool = reprap.GetCurrentTool();
-	float offsets[AXES];
-	if(tool == NULL)
-	{
-		for(int8_t axis = 0; axis < AXES; axis++)
-			offsets[axis] = 0.0;
-	} else
-		tool->GetOffsets(offsets);
-
-	for(int8_t axis = 0; axis < AXES; axis++)
-		m[axis] += offsets[axis];
 	return true;
 }
 
