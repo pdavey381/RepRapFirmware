@@ -322,6 +322,8 @@ void RepRap::EmergencyStop()
 
 void RepRap::AddTool(Tool* tool)
 {
+	// First one?
+
 	if(toolList == NULL)
 	{
 		toolList = tool;
@@ -330,7 +332,20 @@ void RepRap::AddTool(Tool* tool)
 		return;
 	}
 
-	toolList->AddTool(tool);
+	// Subsequent one...
+
+	Tool* existingTool = GetTool(tool->Number());
+	if(existingTool == NULL)
+	{
+		toolList->AddTool(tool);
+		return;
+	}
+
+	// Attempting to add a tool with a number that's been taken.
+
+	snprintf(scratchString, STRING_LENGTH, "Tool creation - attempt to create a tool with a number that's in use: %d", tool->Number());
+	reprap.GetPlatform()->Message(HOST_MESSAGE, scratchString);
+	delete tool; // Harsh?  Protects against a memory leak.
 }
 
 void RepRap::PrintTool(int toolNumber, char* reply)
@@ -347,6 +362,25 @@ void RepRap::PrintTool(int toolNumber, char* reply)
 		tool = tool->Next();
 	}
 	platform->Message(HOST_MESSAGE, "Attempt to print details of non-existent tool.");
+}
+
+void RepRap::PrintTools(char* reply)
+{
+	Tool* tool = toolList;
+	int bufferSize = STRING_LENGTH;
+	int startByte = 0;
+
+	reply[0] = 0;
+
+	while(tool)
+	{
+		tool->PrintInternal(&reply[startByte], bufferSize);
+		startByte = strlen(reply) + 1;
+		bufferSize -= startByte;
+		tool = tool->Next();
+		if(tool)
+			strncat(reply, "\n", bufferSize);
+	}
 }
 
 void RepRap::SelectTool(int toolNumber)

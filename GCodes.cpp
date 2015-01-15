@@ -1185,9 +1185,14 @@ void GCodes::SetOrReportOffsets(char* reply, GCodeBuffer *gb)
 void GCodes::AddNewTool(GCodeBuffer *gb, char* reply)
 {
 	if(!gb->Seen('P'))
+	{
+		reprap.PrintTools(reply);
 		return;
+	}
 
 	int toolNumber = gb->GetLValue();
+	Tool* tool = reprap.GetTool(toolNumber);
+
 	bool seen = false;
 
 	long drives[DRIVES - AXES];  // There can never be more than we have...
@@ -1210,8 +1215,12 @@ void GCodes::AddNewTool(GCodeBuffer *gb, char* reply)
 
 	if(seen)
 	{
-		Tool* tool = new Tool(toolNumber, drives, dCount, heaters, hCount);
-		reprap.AddTool(tool);
+		if(tool == NULL)
+		{
+			tool = new Tool(toolNumber, drives, dCount, heaters, hCount);
+			reprap.AddTool(tool);
+		} else
+			tool->Init(drives, dCount, heaters, hCount);
 	} else
 		reprap.PrintTool(toolNumber, reply);
 }

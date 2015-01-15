@@ -254,13 +254,31 @@ $('div#feed button#feed').on('click', function() {
     if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
         dir = "-";
     }
+	 var toolDef;
+	 switch (selectedTool)
+	 {
+		case 124:
+			toolDef = "M563 P127 H3 D0:1:2:3:4\nG10 P127 S" + setTemp3 + "\n";
+			break;
+
+		case 125:
+			toolDef = "M563 P127 H2 D0:1:2:3:4\nG10 P127 S" + setTemp2 + "\n";
+			break;
+
+		case 126:
+			toolDef = "M563 P127 H1 D0:1:2:3:4\nG10 P127 S" + setTemp1 + "\n";
+			break;
+
+		default:
+			toolDef = "M563 P127 D0:1:2:3:4\n";
+	 }
     var feedRate = " F" + $('input[name="speed"]:checked').val();
     var p0 = parseFloat(document.getElementById('drive0_P').value)*amount;
     var p1 = parseFloat(document.getElementById('drive1_P').value)*amount;
     var p2 = parseFloat(document.getElementById('drive2_P').value)*amount;
     var p3 = parseFloat(document.getElementById('drive3_P').value)*amount;
     var p4 = parseFloat(document.getElementById('drive4_P').value)*amount;
-    var code = "M120\nM83\nT127\nG1 E" + 
+    var code = "M120\nM83\n" + toolDef + "T127\nG1 E" + 
 		dir + p0 + ":" +
 		dir + p1 + ":" +
 		dir + p2 + ":" +

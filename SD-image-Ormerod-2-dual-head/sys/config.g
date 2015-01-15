@@ -10,8 +10,8 @@ M111 S0                             ; Debug off
 M550 PRepRapPro Ormerod 2 Dual Head ; Machine name (can be anything you like)
 M551 Preprap                        ; Machine password (currently not used)
 M540 PBE:EF:DE:AD:FE:ED 				; MAC Address
-M552 P192.168.0.12                  ; IP address
-M553 P255.255.254.0                 ; Netmask
+M552 P192.168.1.14                  ; IP address
+M553 P255.255.255.0                 ; Netmask
 M554 P192.168.1.1                   ; Gateway
 M555 P2                             ; Set output to look like Marlin
 G21                                 ; Work in millimetres

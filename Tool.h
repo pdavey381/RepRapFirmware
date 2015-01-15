@@ -31,6 +31,7 @@ class Tool
 public:
 
 	Tool(int toolNumber, long d[], int dCount, long h[], int hCount);
+	void Init(long d[], int dCount, long h[], int hCount);
 	int DriveCount();
 	int Drive(int driveNumber);
 	bool ToolCanDrive();
@@ -42,7 +43,7 @@ public:
 	void SetOffsets(float* off);
 	void GetOffsets(float* off);
 	void DefineMix(float* m);
-	float* GetMix() const;
+	const float* GetMix() const;
 	void TurnMixingOn();
 	void TurnMixingOff();
 	bool Mixing();
@@ -60,6 +61,7 @@ protected:
 	void AddTool(Tool* t);
 	void FlagTemperatureFault(int8_t dudHeater);
 	void ClearTemperatureFault(int8_t wasDudHeater);
+	void PrintInternal(char* reply, int bufferSize);
 
 private:
 
@@ -67,13 +69,13 @@ private:
 	void ResetTemperatureFault(int8_t wasDudHeater);
 	bool AllHeatersAtHighTemperature();
 	int myNumber;
-	int* drives;
-	float* mix;
+	int drives[DRIVES - AXES];
+	float mix[DRIVES - AXES];
 	bool mixing;
 	int driveCount;
-	int* heaters;
-	float* activeTemperatures;
-	float* standbyTemperatures;
+	int heaters[HEATERS];
+	float activeTemperatures[HEATERS];
+	float standbyTemperatures[HEATERS];
 	float offsets[AXES];
 	int heaterCount;
 	Tool* next;
@@ -113,7 +115,7 @@ inline void Tool::DefineMix(float* m)
 		mix[drive] = m[drive];
 }
 
-inline float* Tool::GetMix() const
+inline const float* Tool::GetMix() const
 {
 	return mix;
 }
