@@ -33,7 +33,7 @@ var headColour3 = "rgb(236,155,40)"; //orange
 var setTemp1 = "-273";
 var setTemp2 = "-273";
 var setTemp3 = "-273";
-var selectedTool = 1;
+var selectedHeater = 1;
 
 var gFile = [];
 var macroGs = ['setbed.g'];
@@ -139,36 +139,36 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
 });
 $('div#headTemperature1 button#setHeadTemp1').on('click', function() {
         setTemp1 = $('input#headTempInput1').val();
-        $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
-		  selectedTool = 126;
+		  var toSend = setTempString(1, setTemp1);
+        $.askElle('gcode', toSend);
 });
 $('div#headTemperature2 button#setHeadTemp2').on('click', function() {
        setTemp2 = $('input#headTempInput2').val();
-       $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
-		 selectedTool = 125;
+		  var toSend = setTempString(2, setTemp2);
+        $.askElle('gcode', toSend);
 });
 $('div#headTemperature3 button#setHeadTemp3').on('click', function() {
        setTemp3 = $('input#headTempInput3').val();
-        $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
-		 selectedTool = 124;
+		  var toSend = setTempString(3, setTemp3);
+        $.askElle('gcode', toSend);
 });
 $('div#headTemperature1').on('click', 'a#headTempLink1', function() {
     $('input#headTempInput1').val($(this).text());
 	 setTemp1 = $(this).text();
-    $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
-    selectedTool = 126;
+    var toSend = setTempString(1, setTemp1);
+    $.askElle('gcode', toSend);
 });
 $('div#headTemperature2').on('click', 'a#headTempLink2', function() {
     $('input#headTempInput2').val($(this).text());
 	 setTemp2 = $(this).text();
-    $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
-	 selectedTool = 125;
+    var toSend = setTempString(2, setTemp2);
+    $.askElle('gcode', toSend);
 });
 $('div#headTemperature3').on('click', 'a#headTempLink3', function() {
     $('input#headTempInput3').val($(this).text());
 	 setTemp3 = $(this).text();
-    $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
-	 selectedTool = 124;
+    var toSend = setTempString(3, setTemp3);
+    $.askElle('gcode', toSend);
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -180,24 +180,24 @@ $('input#headTempInput1').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
 		  setTemp1 = $(this).val();
-        $.askElle('gcode', "G10 P126 S" + setTemp1 + "\nT126");
-		  selectedTool = 126;
+    	  var toSend = setTempString(1, setTemp1);
+    	  $.askElle('gcode', toSend);
     }
 });
 $('input#headTempInput2').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
 		  setTemp2 = $(this).val();
-        $.askElle('gcode', "G10 P125 S" + setTemp2 + "\nT125");
-		  selectedTool = 125;
+        var toSend = setTempString(2, setTemp2);
+        $.askElle('gcode', toSend);
     }
 });
 $('input#headTempInput3').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
 		  setTemp3 = $(this).val();
-        $.askElle('gcode', "G10 P124 S" + setTemp3 + "\nT124");
-		  selectedTool = 124;
+        var toSend = setTempString(3, setTemp3);
+        $.askElle('gcode', toSend);
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -254,23 +254,25 @@ $('div#feed button#feed').on('click', function() {
     if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
         dir = "-";
     }
-	 var toolDef;
-	 switch (selectedTool)
+
+    var code;
+
+	 switch (selectedHeater)
 	 {
-		case 124:
-			toolDef = "M563 P127 H3 D0:1:2:3:4\nG10 P127 S" + setTemp3 + "\n";
+		case 1:
+			code = setTempString(1, setTemp1);
 			break;
 
-		case 125:
-			toolDef = "M563 P127 H2 D0:1:2:3:4\nG10 P127 S" + setTemp2 + "\n";
+		case 2:
+			code = setTempString(2, setTemp2);
 			break;
 
-		case 126:
-			toolDef = "M563 P127 H1 D0:1:2:3:4\nG10 P127 S" + setTemp1 + "\n";
+		case 3:
+			code = setTempString(3, setTemp3);
 			break;
 
 		default:
-			toolDef = "M563 P127 D0:1:2:3:4\n";
+			code = setTempString(1, setTemp1);
 	 }
     var feedRate = " F" + $('input[name="speed"]:checked').val();
     var p0 = parseFloat(document.getElementById('drive0_P').value)*amount;
@@ -278,13 +280,13 @@ $('div#feed button#feed').on('click', function() {
     var p2 = parseFloat(document.getElementById('drive2_P').value)*amount;
     var p3 = parseFloat(document.getElementById('drive3_P').value)*amount;
     var p4 = parseFloat(document.getElementById('drive4_P').value)*amount;
-    var code = "M120\nM83\n" + toolDef + "T127\nG1 E" + 
+    code = "M120\nM83\n" + code + "T127\nG1 E" + 
 		dir + p0 + ":" +
 		dir + p1 + ":" +
 		dir + p2 + ":" +
 		dir + p3 + ":" +
 		dir + p4 +
-		feedRate + "\nM121\nT" + selectedTool + "\n";
+		feedRate + "\nM121\n";
     $.askElle('gcode', code);
 });
 
@@ -437,6 +439,28 @@ $('a[data-toggle="tab"]').on('show.bs.tab', function(e) {
 $("div#messages button#clearLog").on('click', function(){
     message('clear', '');
 });
+
+function setTempString(heater, temp)
+{
+	switch (heater)
+	{
+	case 1:
+		setTemp1 = temp;
+		break;
+
+	case 2:
+		setTemp2 = temp;
+		break;
+
+	case 3:
+		setTemp3 = temp;
+		break;
+
+	default:
+	}
+	selectedHeater = heater;
+	return "M563 P127 H" + heater + " D0:1:2:3:4\nG10 P127 S" + temp + "\n";
+}
 
 function getCookies() {
     //if none use defaults here, probably move them elsewhere at some point!

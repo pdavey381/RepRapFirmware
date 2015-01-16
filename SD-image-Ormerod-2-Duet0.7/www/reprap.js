@@ -1,4 +1,13 @@
 /*! Reprap Ormerod Web Control | by Matt Burnett <matt@burny.co.uk>. | open license
+ *  Modified by adrian@reprappro.com
+ *
+ * This expects the config.g file to define four special tools for the web interface to use to control the machine:
+ *
+ * M563 P127 D0:1:2:3:4                ; Define tool 127 to allow the web interface to control all drives
+ * M563 P126 H1							   ; 126 gives Heater 1...
+ * M563 P125 H2								; ...Heater 2...
+ * M563 P124 H3								; ...Heater 3
+ *
  */
 var ver = 0.65; //App version
 var polling = false; 
@@ -9,14 +18,22 @@ var chart,chart2,ormerodIP,layerCount,currentLayer,objHeight,printStartTime,gFil
 var maxUploadBuffer = 800;
 var maxUploadCommands = 200;
 var messageSeqId = 0;
+var machineName = "RepRap";
+var activeHeaters = 2;
 
 //Temp/Layer Chart settings
 var maxDataPoints = 200;
-var chartData = [[], []];
+var chartData = [[], [], [], []];
 var maxLayerBars = 100;
 var layerData = [];
-var bedColour = "#454BFF"; //blue
-var headColour = "#FC2D2D"; //red
+var bedColour = "rgb(69,75,255)"; //blue
+var headColour1 = "rgb(252,45,45)"; //red
+var headColour2 = "rgb(92,183,92)"; //green
+var headColour3 = "rgb(236,155,40)"; //orange
+var setTemp1 = "-273";
+var setTemp2 = "-273";
+var setTemp3 = "-273";
+var selectedHeater = 1;
 
 var gFile = [];
 var macroGs = ['setbed.g'];
@@ -57,15 +74,20 @@ $(document).ready(function() {
     for (var i = 0; i < maxDataPoints; i++) {
         chartData[0].push([i, 20]);
         chartData[1].push([i, 10]);
+        chartData[2].push([i, 10]);
+        chartData[3].push([i, 10]);
     }
 
-    //chart line colours
-    $('#bedTxt').css("color", bedColour);
-    $('#headTxt').css("color", headColour);
+    
+   // $('#bedTxt').css("color", bedColour);
+   // $('#headTxt1').css("color", headColour1);
+   // $('#headTxt2').css("color", headColour2);
+   // $('#headTxt3').css("color", headColour3);
 
+	//chart line colours
     chart = $.plot("#tempchart", chartData, {
         series: {shadowSize: 0},
-        colors: [bedColour, headColour],
+        colors: [bedColour, headColour1, headColour2, headColour3],
         yaxis: {min: -20, max: 250},
         xaxis: {show: false},
         grid: {
@@ -85,7 +107,7 @@ $(document).ready(function() {
     });
 
     message('success', 'Page Load Complete');
-    $('button#connect, button#printing').removeClass('disabled');
+    $('button#connect, button#printing, button#headTxt1, button#headTxt2, button#headTxt3, button#bedTxt').removeClass('disabled');
     
     if (getHTMLver() < ver) {
         //pop message
@@ -115,12 +137,38 @@ $('div#bedTemperature').on('click', 'a#bedTempLink', function() {
     $('input#bedTempInput').val($(this).text());
     $.askElle('gcode', "M140 S" + $(this).text());
 });
-$('div#headTemperature button#setHeadTemp').on('click', function() {
-        $.askElle('gcode', "G10 P1 S" + $('input#headTempInput').val() + "\nT1");
+$('div#headTemperature1 button#setHeadTemp1').on('click', function() {
+        setTemp1 = $('input#headTempInput1').val();
+		  var toSend = setTempString(1, setTemp1);
+        $.askElle('gcode', toSend);
 });
-$('div#headTemperature').on('click', 'a#headTempLink', function() {
-    $('input#headTempInput').val($(this).text());
-    $.askElle('gcode', "G10 P1 S" + $(this).text() + "\nT1");
+$('div#headTemperature2 button#setHeadTemp2').on('click', function() {
+       setTemp2 = $('input#headTempInput2').val();
+		  var toSend = setTempString(2, setTemp2);
+        $.askElle('gcode', toSend);
+});
+$('div#headTemperature3 button#setHeadTemp3').on('click', function() {
+       setTemp3 = $('input#headTempInput3').val();
+		  var toSend = setTempString(3, setTemp3);
+        $.askElle('gcode', toSend);
+});
+$('div#headTemperature1').on('click', 'a#headTempLink1', function() {
+    $('input#headTempInput1').val($(this).text());
+	 setTemp1 = $(this).text();
+    var toSend = setTempString(1, setTemp1);
+    $.askElle('gcode', toSend);
+});
+$('div#headTemperature2').on('click', 'a#headTempLink2', function() {
+    $('input#headTempInput2').val($(this).text());
+	 setTemp2 = $(this).text();
+    var toSend = setTempString(2, setTemp2);
+    $.askElle('gcode', toSend);
+});
+$('div#headTemperature3').on('click', 'a#headTempLink3', function() {
+    $('input#headTempInput3').val($(this).text());
+	 setTemp3 = $(this).text();
+    var toSend = setTempString(3, setTemp3);
+    $.askElle('gcode', toSend);
 });
 $('input#bedTempInput').keydown(function(event) {
     if (event.which === 13) {
@@ -128,10 +176,28 @@ $('input#bedTempInput').keydown(function(event) {
         $.askElle('gcode', "M140 S" + $(this).val());
     }
 });
-$('input#headTempInput').keydown(function(event) {
+$('input#headTempInput1').keydown(function(event) {
     if (event.which === 13) {
         event.preventDefault();
-        $.askElle('gcode', "G10 P1 S" + $(this).val() + "\nT1");
+		  setTemp1 = $(this).val();
+    	  var toSend = setTempString(1, setTemp1);
+    	  $.askElle('gcode', toSend);
+    }
+});
+$('input#headTempInput2').keydown(function(event) {
+    if (event.which === 13) {
+        event.preventDefault();
+		  setTemp2 = $(this).val();
+        var toSend = setTempString(2, setTemp2);
+        $.askElle('gcode', toSend);
+    }
+});
+$('input#headTempInput3').keydown(function(event) {
+    if (event.which === 13) {
+        event.preventDefault();
+		  setTemp3 = $(this).val();
+        var toSend = setTempString(3, setTemp3);
+        $.askElle('gcode', toSend);
     }
 });
 $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
@@ -145,15 +211,39 @@ $('div#bedTemperature ul').on('click', 'a#addBedTemp', function() {
         modalMessage("Error Adding Bed Temp!", "You must enter a Temperature to add it to the dropdown list", close);
     }
 });
-$('div#headTemperature ul').on('click', 'a#addHeadTemp', function() {
-    var tempVal = $('input#headTempInput').val();
+$('div#headTemperature1 ul').on('click', 'a#addHeadTemp1', function() {
+    var tempVal = $('input#headTempInput1').val();
     if (tempVal != "") {
-        var temps = storage.get('temps', 'head');
+        var temps = storage.get('temps', 'head1');
         temps.unshift(parseInt(tempVal));
-        storage.set('temps.head', temps);
+        storage.set('temps.head1', temps);
         loadSettings();
     }else{
-        modalMessage("Error Adding Head Temp!", "You must enter a Temperature to add it to the dropdown list", close);
+        modalMessage("Error Adding Head Temp1!", "You must enter a Temperature to add it to the dropdown list", close);
+    }
+});
+
+$('div#headTemperature2 ul').on('click', 'a#addHeadTemp2', function() {
+    var tempVal = $('input#headTempInput2').val();
+    if (tempVal != "") {
+        var temps = storage.get('temps', 'head2');
+        temps.unshift(parseInt(tempVal));
+        storage.set('temps.head2', temps);
+        loadSettings();
+    }else{
+        modalMessage("Error Adding Head Temp2!", "You must enter a Temperature to add it to the dropdown list", close);
+    }
+});
+
+$('div#headTemperature3 ul').on('click', 'a#addHeadTemp3', function() {
+    var tempVal = $('input#headTempInput3').val();
+    if (tempVal != "") {
+        var temps = storage.get('temps', 'head3');
+        temps.unshift(parseInt(tempVal));
+        storage.set('temps.head3', temps);
+        loadSettings();
+    }else{
+        modalMessage("Error Adding Head Temp3!", "You must enter a Temperature to add it to the dropdown list", close);
     }
 });
 
@@ -164,10 +254,43 @@ $('div#feed button#feed').on('click', function() {
     if ($('input[name="feeddir"]:checked').attr('id') == "reverse") {
         dir = "-";
     }
+
+    var code;
+
+	 switch (selectedHeater)
+	 {
+		case 1:
+			code = setTempString(1, setTemp1);
+			break;
+
+		case 2:
+			code = setTempString(2, setTemp2);
+			break;
+
+		case 3:
+			code = setTempString(3, setTemp3);
+			break;
+
+		default:
+			code = setTempString(1, setTemp1);
+	 }
     var feedRate = " F" + $('input[name="speed"]:checked').val();
-    var code = "M120\nM83\nG1 E" + dir + amount + feedRate + "\nM121";
+    var p0 = parseFloat(document.getElementById('drive0_P').value)*amount;
+    var p1 = parseFloat(document.getElementById('drive1_P').value)*amount;
+    var p2 = parseFloat(document.getElementById('drive2_P').value)*amount;
+    var p3 = parseFloat(document.getElementById('drive3_P').value)*amount;
+    var p4 = parseFloat(document.getElementById('drive4_P').value)*amount;
+    code = "M120\nM83\n" + code + "T127\nG1 E" + 
+		dir + p0 + ":" +
+		dir + p1 + ":" +
+		dir + p2 + ":" +
+		dir + p3 + ":" +
+		dir + p4 +
+		feedRate + "\nM121\n";
     $.askElle('gcode', code);
 });
+
+
 
 //gcodes
 $('div#sendG button#txtinput, div#sendG a').on('click', function() {    
@@ -232,7 +355,9 @@ $('div#panicBtn button').on('click', function() {
             btnVal = "M1";
             //switch off heaters
             $.askElle('gcode', "M140 S0"); //bed off
-            $.askElle('gcode', "G10 P1 S0\nT1"); //head 0 off
+            $.askElle('gcode', "G10 P1 S-273\nT101"); //head 0 off
+            $.askElle('gcode', "G10 P2 S-273\nT102"); //head 1 off
+            $.askElle('gcode', "G10 P3 S-273\nT103"); //head 2 off
             resetLayerData();
         case "M24":
             //resume
@@ -315,13 +440,35 @@ $("div#messages button#clearLog").on('click', function(){
     message('clear', '');
 });
 
+function setTempString(heater, temp)
+{
+	switch (heater)
+	{
+	case 1:
+		setTemp1 = temp;
+		break;
+
+	case 2:
+		setTemp2 = temp;
+		break;
+
+	case 3:
+		setTemp3 = temp;
+		break;
+
+	default:
+	}
+	selectedHeater = heater;
+	return "M563 P127 H" + heater + " D0:1:2:3:4\nG10 P127 S" + temp + "\n";
+}
+
 function getCookies() {
     //if none use defaults here, probably move them elsewhere at some point!
     if (!storage.get('settings')) {
         storage.set('settings', { pollDelay : 1000, layerHeight : 0.24, halfz : 0, noOK : 0 });
     }
     if (!storage.get('temps')) {
-        storage.set('temps', {'bed' : [120,65,0], 'head' : [240,185,0]});
+        storage.set('temps', {'bed' : [120,65,0], 'head1' : [240,185,0], 'head2' : [240,185,0], 'head3' : [240,185,0]});
     }
 }
 
@@ -332,12 +479,20 @@ function loadSettings() {
     storage.get('settings', 'noOK')==1?$('div#messages input#noOK').prop('checked', true):$('div#messages input#noOK').prop('checked', false);
     
     $('div#bedTemperature ul').html('<li class="divider"></li><li><a href="#" id="addBedTemp">Add Temp</a></li>');
-    $('div#headTemperature ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp">Add Temp</a></li>');
+    $('div#headTemperature1 ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp1">Add Temp</a></li>');
+    $('div#headTemperature2 ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp2">Add Temp</a></li>');
+    $('div#headTemperature3 ul').html('<li class="divider"></li><li><a href="#" id="addHeadTemp3">Add Temp</a></li>');
     storage.get('temps', 'bed').forEach(function(item){
         $('div#bedTemperature ul').prepend('<li><a href="#" id="bedTempLink">'+item+'</a></li>');
     });
-    storage.get('temps', 'head').forEach(function(item){
-        $('div#headTemperature ul').prepend('<li><a href="#" id="headTempLink">'+item+'</a></li>');
+    storage.get('temps', 'head1').forEach(function(item){
+        $('div#headTemperature1 ul').prepend('<li><a href="#" id="headTempLink1">'+item+'</a></li>');
+    });
+	 storage.get('temps', 'head2').forEach(function(item){
+        $('div#headTemperature2 ul').prepend('<li><a href="#" id="headTempLink2">'+item+'</a></li>');
+    });
+	 storage.get('temps', 'head3').forEach(function(item){
+        $('div#headTemperature3 ul').prepend('<li><a href="#" id="headTempLink3">'+item+'</a></li>');
     });
 }
 
@@ -561,7 +716,7 @@ function getFileName(filename) {
 function disableButtons(which) {
     switch (which) {
         case "head":
-            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile').addClass('disabled');
+            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile, table#proportions input').addClass('disabled');
             break;
         case "panic":
             $('div#panicBtn button').addClass('disabled');
@@ -579,7 +734,7 @@ function disableButtons(which) {
 function enableButtons(which) {
     switch (which) {
         case "head":
-            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile').removeClass('disabled');
+            $('table#moveHead button, table#temp button, table#extruder button, table#extruder label, div#quicks a, button#uploadGfile, button#printGfile, table#proportions input').removeClass('disabled');
             break;
         case "panic":
             $('div#panicBtn button').removeClass('disabled');
@@ -656,6 +811,10 @@ function updatePage() {
     var status = $.askElle("poll", "");
     if (!status || !polling) {
         $('button#connect').removeClass('btn-success').addClass('btn-danger');
+        $('button#headTxt1').removeClass('btn-success').addClass('btn-danger');
+        $('button#headTxt2').removeClass('btn-success').addClass('btn-danger');
+        $('button#headTxt3').removeClass('btn-success').addClass('btn-danger');
+        $('button#bedTxt').removeClass('btn-success').addClass('btn-danger');
         $('button#printing').removeClass('btn-warning').removeClass('btn-success').addClass('btn-danger').text("RepRap machine is disconnected.");
         if (polling) {
             message('danger', "<strong>Warning!</strong> Ormerod webserver is probably broken, power cycle/reset your Duet Board :(");
@@ -669,6 +828,10 @@ function updatePage() {
         disableButtons("panic");
     } else {
         $('button#connect').removeClass('btn-danger').addClass('btn-success').text("Online");
+        $('button#headTxt1').removeClass('btn-danger').addClass('btn-success');
+        $('button#headTxt2').removeClass('btn-danger').addClass('btn-success');
+        $('button#headTxt3').removeClass('btn-danger').addClass('btn-success');
+        $('button#bedTxt').removeClass('btn-danger').addClass('btn-success');
         //Connected Hoorahhh!
         if (messageSeqId !== status.seq) {
             messageSeqId = status.seq;
@@ -677,15 +840,21 @@ function updatePage() {
         buffer = status.buff;
 		  
         if(status.reprap_name != null)
-			name = status.reprap_name;
+			machineName = status.reprap_name;
 		  else
-			name = "RepRap";
+			machineName = "RepRap";
+
+        if(status.act != null)
+			activeHeaters = ~~status.act;
+		  else
+			activeHeaters = ~~2;
+
         homedWarning(status.hx,status.hy,status.hz);
         if (status.poll[0] === "P" || (webPrinting && !paused)) {
             //printing
             printing = true;
             objHeight = $('input#objheight').val();
-            $('button#printing').removeClass('btn-danger').removeClass('btn-warning').addClass('btn-success').text(name + " is printing.");
+            $('button#printing').removeClass('btn-danger').removeClass('btn-warning').addClass('btn-success').text(machineName + " is printing.");
             enableButtons('panic');
             disableButtons("head");
             disableButtons("gfilelist");
@@ -701,20 +870,20 @@ function updatePage() {
         } else if (status.poll[0] === "I" && !paused ) {
             //inactive, not printing
             printing = false;
-            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(name + " is ready.");
+            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(machineName + " is ready.");
             disableButtons("panic");
             enableButtons('head');
             enableButtons("gfilelist");
         } else if (status.poll[0] === "I" && paused) {
             //paused
             printing = true;
-            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(name + " is paused.");
+            $('button#printing').removeClass('btn-danger').removeClass('btn-success').addClass('btn-warning').text(machineName + " is paused.");
             enableButtons('panic');
             enableButtons('head');
         } else {
             //unknown state
             webPrinting = printing = paused = false;
-            $('button#printing').removeClass('btn-warning').removeClass('btn-success').addClass('btn-danger').text(name + " experienced an error!");
+            $('button#printing').removeClass('btn-warning').removeClass('btn-success').addClass('btn-danger').text(machineName + " experienced an error!");
             message('danger', 'Unknown Poll State : ' + status.poll[0]);
         }
 
@@ -727,7 +896,22 @@ function updatePage() {
         $('span#probe').text(status.probe);
 */
         $('span#bedTemp').text(status.poll[5]);
-        $('span#headTemp').text(status.poll[6]);
+
+		  if((activeHeaters & 2) != 0)
+        	$('span#headTemp1').text(status.poll[6]);
+        else
+        	$('span#headTemp1').text("0.0");
+
+		  if((activeHeaters & 4) != 0)
+        	$('span#headTemp2').text(status.poll[7]);
+        else
+        	$('span#headTemp2').text("0.0");
+
+		  if((activeHeaters & 8) != 0)
+        	$('span#headTemp3').text(status.poll[8]);
+        else
+        	$('span#headTemp3').text("0.0");
+
         $('span#Xpos').text(status.poll[1]);
         $('span#Ypos').text(status.poll[2]);
         $('span#Zpos').text(status.poll[3]);
@@ -736,7 +920,25 @@ function updatePage() {
 
         //Temp chart stuff
         chartData[0].push(parseFloat(status.poll[5]));
-        chartData[1].push(parseFloat(status.poll[6]));
+
+		  if((activeHeaters & 2) != 0)
+        	chartData[1].push(parseFloat(status.poll[6]));
+        else
+        	chartData[1].push(0.0);
+
+		  if((activeHeaters & 4) != 0)
+        	chartData[2].push(parseFloat(status.poll[7]));
+        else
+        	chartData[2].push(0.0);
+
+		  if((activeHeaters & 8) != 0)
+        	chartData[3].push(parseFloat(status.poll[8]));
+        else
+        	chartData[3].push(0.0);
+
+        //chartData[1].push(parseFloat(status.poll[6]));
+        //chartData[2].push(parseFloat(status.poll[7]));
+        //chartData[3].push(parseFloat(status.poll[8]));
         chart.setData(parseChartData());
         chart.draw();
     }
@@ -878,10 +1080,16 @@ function parseChartData() {
         chartData[0].shift();
     if (chartData[1].length > maxDataPoints)
         chartData[1].shift();
-    var res = [[], []];
+    if (chartData[2].length > maxDataPoints)
+        chartData[2].shift();
+    if (chartData[3].length > maxDataPoints)
+        chartData[3].shift();
+    var res = [[], [], [], []];
     for (var i = 0; i < chartData[0].length; ++i) {
         res[0].push([i, chartData[0][i]]);
         res[1].push([i, chartData[1][i]]);
+        res[2].push([i, chartData[2][i]]);
+        res[3].push([i, chartData[3][i]]);
     }
     return res;
 }

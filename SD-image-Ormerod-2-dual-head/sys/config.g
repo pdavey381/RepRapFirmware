@@ -30,7 +30,5 @@ M563 P1 D0 H1                       ; Define tool 1
 G10 P1 S-273 R-273                  ; Set tool 1 operating and standby temperatures
 M563 P2 D1 H2                       ; Define tool 2
 G10 P2 X19 S-273 R-273              ; Set tool 2 operating and standby temperatures
-M563 P127 D0:1:2:3:4                ; Define tool 127 to allow the web interface to control all drives
-M563 P126 H1							   ; Tool 126 gives Heater 1...
-M563 P125 H2								; ...Heater 2...
-M563 P124 H3								; ...Heater 3
+M563 P127 H1 D0:1:2:3:4             ; Define tool 127 to allow the web interface to control all drives and heaters
+
